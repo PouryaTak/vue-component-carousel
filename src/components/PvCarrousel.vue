@@ -2,6 +2,7 @@
     <div>
         <button @click="movePrv">Prev</button>
         <button @click="moveNxt">next</button>
+        {{this.container_width * (this.float - 1)}}
         <div class="pv_caro">
             <div class="pv_container" :style="{ transform: transformVal }">
                 <slot/>
@@ -21,6 +22,7 @@ export default {
       gap: 10,
       cardCount: null,
       overalLenght: null,
+      initIndex: 1,
     };
   },
   mounted() {
@@ -31,9 +33,17 @@ export default {
   },
   methods: {
     moveNxt() {
-      if ( this.transformData >= this.extra) {
+      if (this.initIndex > this.lastIndex) {
         return;
       }
+      if (this.initIndex == this.lastIndex) {
+        ++this.initIndex;
+        this.transformData +=
+          (1 - (this.slidesToShow % 1)) * this.card_width - this.gap;
+        this.transformVal = `translateX(-${this.transformData}px)`;
+        return;
+      }
+      ++this.initIndex;
       this.transformData += this.card_width + this.gap;
       this.transformVal = `translateX(-${this.transformData}px)`;
     },
@@ -41,25 +51,48 @@ export default {
       if (this.transformData <= 0) {
         return;
       }
-      else if (this.transformData == this.extra) {
-
+      if (this.initIndex == (Math.ceil(this.slidesToShow)-1)) {
+        --this.initIndex;
+        this.transformData -= (1 - (this.slidesToShow % 1)) * this.card_width - this.gap;
+        this.transformVal = `translateX(-${this.transformData}px)`;
+        return
       }
+      --this.initIndex;
       this.transformData -= this.card_width + this.gap;
       this.transformVal = `translateX(-${this.transformData}px)`;
     },
   },
   computed: {
-    extra() {
-      return Math.round(((this.overalLenght / this.container_width)  % 1) * this.overalLenght);
+    Int() {
+      return (this.slidePage % 1) * this.container_width;
+    },
+    float() {
+      return Math.floor(this.slidePage);
     },
     slidePage() {
-        return Math.floor(this.overalLenght / this.container_width)
-    }
-
+      return (
+        this.overalLenght / (this.slidesToShow * (this.card_width - this.gap))
+      );
+    },
+    slidesToShow() {
+      return this.container_width / (this.card_width + this.gap);
+    },
+    extra() {
+      return (1 - (this.slidesToShow % 1)) * this.card_width - this.gap;
+    },
+    lastIndex() {
+      return this.cardCount - Math.floor(this.slidesToShow);
+    },
+    fistIndex() {
+      return this.cardCount - Math.floor(this.slidesToShow);
+    },
   },
 };
 </script>
 <style lang="scss">
+body {
+  margin: 0;
+}
 .pv_caro {
   overflow: scroll;
   * {
@@ -77,6 +110,4 @@ export default {
   gap: 10px;
   margin: 15px 0;
 }
-
-
 </style>
