@@ -2,6 +2,8 @@
     <div>
         <button @click="movePrv">Prev</button>
         <button @click="moveNxt">next</button>
+        <label for="rewind">rewind</label>
+        <input type="checkbox" name="rewind" id="rewind" @change="rewind = !rewind">
         <div class="pv_caro">
             <div class="pv_container" :style="{ transform: transformVal }">
                 <slot/>
@@ -22,6 +24,7 @@ export default {
       cardCount: null,
       overalLenght: null,
       initIndex: 1,
+      rewind: false
     };
   },
   mounted() {
@@ -32,7 +35,13 @@ export default {
   },
   methods: {
     moveNxt() {
-      if (this.initIndex > this.lastIndex) {
+      if (!this.rewind && this.initIndex > this.lastIndex) {
+        return;
+      }
+      if (this.rewind && this.initIndex > this.lastIndex) {
+        this.initIndex = 1
+        this.transformData = 0;
+        this.transformVal = `translateX(-${this.transformData}px)`;
         return;
       }
       if (this.initIndex == this.lastIndex) {
@@ -47,9 +56,19 @@ export default {
       this.transformVal = `translateX(-${this.transformData}px)`;
     },
     movePrv() {
-      if (this.transformData <= 0) {
+      if (!this.rewind && this.transformData <= 0) {
         return;
       }
+
+
+      if (this.rewind && this.transformData <= 0) {
+        this.initIndex = this.lastIndex + 1
+        this.transformData = (((this.lastIndex - 1) * (this.card_width + this.gap)) + ((1 - (this.slidesToShow % 1)) * (this.card_width - this.gap)));
+        this.transformVal = `translateX(-${this.transformData}px)`;
+        return;
+      }
+
+
       if (this.initIndex > this.lastIndex) {
         --this.initIndex;
         this.transformData -=
