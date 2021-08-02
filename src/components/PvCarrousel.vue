@@ -2,7 +2,6 @@
     <div>
         <button @click="movePrv">Prev</button>
         <button @click="moveNxt">next</button>
-        {{this.container_width * (this.float - 1)}}
         <div class="pv_caro">
             <div class="pv_container" :style="{ transform: transformVal }">
                 <slot/>
@@ -51,11 +50,12 @@ export default {
       if (this.transformData <= 0) {
         return;
       }
-      if (this.initIndex == (Math.ceil(this.slidesToShow)-1)) {
+      if (this.initIndex > this.lastIndex) {
         --this.initIndex;
-        this.transformData -= (1 - (this.slidesToShow % 1)) * this.card_width - this.gap;
+        this.transformData -=
+          (1 - (this.slidesToShow % 1)) * this.card_width - this.gap;
         this.transformVal = `translateX(-${this.transformData}px)`;
-        return
+        return;
       }
       --this.initIndex;
       this.transformData -= this.card_width + this.gap;
@@ -63,12 +63,6 @@ export default {
     },
   },
   computed: {
-    Int() {
-      return (this.slidePage % 1) * this.container_width;
-    },
-    float() {
-      return Math.floor(this.slidePage);
-    },
     slidePage() {
       return (
         this.overalLenght / (this.slidesToShow * (this.card_width - this.gap))
@@ -83,9 +77,7 @@ export default {
     lastIndex() {
       return this.cardCount - Math.floor(this.slidesToShow);
     },
-    fistIndex() {
-      return this.cardCount - Math.floor(this.slidesToShow);
-    },
+
   },
 };
 </script>
@@ -96,7 +88,7 @@ body {
 .pv_caro {
   overflow: scroll;
   * {
-    transition: all 0.4s ease;
+    transition: all 0.3s ease;
   }
   &::-webkit-scrollbar {
     display: none;
