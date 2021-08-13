@@ -1,9 +1,17 @@
 <template lang="">
-    <div>
+    <div :style="rtl ? 'direction:rtl' : ''">
+      <div style="display:flex; margin-bottom: 20px; justify-content:center; background:#eee"> 
+        <div style="margin: 0 10px">
+          <label for="rewind">rewind</label>
+        <input type="checkbox" name="rewind" id="rewind" @change="rewind = !rewind">
+        </div>
+        <div>
+          <label for="rtl">rtl</label>
+        <input type="checkbox" name="rtl" id="rtl" @change="rtl = !rtl">
+        </div>
+      </div>
         <button @click="movePrv">Prev</button>
         <button @click="moveNxt">next</button>
-        <label for="rewind">rewind</label>
-        <input type="checkbox" name="rewind" id="rewind" @change="rewind = !rewind">
         <div class="pv_caro">
             <div class="pv_container" :style="{ transform: transformVal }">
                 <slot/>
@@ -24,7 +32,8 @@ export default {
       cardCount: null,
       overalLenght: null,
       initIndex: 1,
-      rewind: false
+      rewind: false,
+      rtl: false,
     };
   },
   mounted() {
@@ -41,19 +50,19 @@ export default {
       if (this.rewind && this.initIndex > this.lastIndex) {
         this.initIndex = 1
         this.transformData = 0;
-        this.transformVal = `translateX(-${this.transformData}px)`;
+        this.transformVal = `translateX(${this.direction}px)`;
         return;
       }
       if (this.initIndex == this.lastIndex) {
         ++this.initIndex;
         this.transformData +=
           (1 - (this.slidesToShow % 1)) * this.card_width - this.gap;
-        this.transformVal = `translateX(-${this.transformData}px)`;
+        this.transformVal = `translateX(${this.direction}px)`;
         return;
       }
       ++this.initIndex;
       this.transformData += this.card_width + this.gap;
-      this.transformVal = `translateX(-${this.transformData}px)`;
+      this.transformVal = `translateX(${this.direction}px)`;
     },
     movePrv() {
       if (!this.rewind && this.transformData <= 0) {
@@ -64,7 +73,7 @@ export default {
       if (this.rewind && this.transformData <= 0) {
         this.initIndex = this.lastIndex + 1
         this.transformData = (((this.lastIndex - 1) * (this.card_width + this.gap)) + ((1 - (this.slidesToShow % 1)) * (this.card_width - this.gap)));
-        this.transformVal = `translateX(-${this.transformData}px)`;
+        this.transformVal = `translateX(${this.direction}px)`;
         return;
       }
 
@@ -73,12 +82,12 @@ export default {
         --this.initIndex;
         this.transformData -=
           (1 - (this.slidesToShow % 1)) * this.card_width - this.gap;
-        this.transformVal = `translateX(-${this.transformData}px)`;
+        this.transformVal = `translateX(${this.direction}px)`;
         return;
       }
       --this.initIndex;
       this.transformData -= this.card_width + this.gap;
-      this.transformVal = `translateX(-${this.transformData}px)`;
+      this.transformVal = `translateX(${this.direction}px)`;
     },
   },
   computed: {
@@ -96,7 +105,13 @@ export default {
     lastIndex() {
       return this.cardCount - Math.floor(this.slidesToShow);
     },
-
+direction() {
+  if(!this.rtl) {
+    return this.transformData * -1
+  } else {
+    return this.transformData  
+  }
+}
   },
 };
 </script>
