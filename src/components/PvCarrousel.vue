@@ -1,11 +1,15 @@
 <template lang="">
     <div :style="rtl ? 'direction:rtl' : ''">
-      <div style="display:flex; margin-bottom: 20px; justify-content:center; background:#eee"> 
+      <div style="display:flex; margin-bottom: 20px; justify-content:center; background:#eee">
+        <div style="margin: 0 10px">
+          <label for="grab">grab</label>
+        <input type="checkbox" name="grab" id="grab" @change="grab = !grab">
+        </div>
         <div style="margin: 0 10px">
           <label for="rewind">rewind</label>
         <input type="checkbox" name="rewind" id="rewind" @change="rewind = !rewind">
         </div>
-        <div>
+        <div style="margin: 0 10px">
           <label for="rtl">rtl</label>
         <input type="checkbox" name="rtl" id="rtl" @change="rtl = !rtl">
         </div>
@@ -13,7 +17,7 @@
         <button @click="movePrv">Prev</button>
         <button @click="moveNxt">next</button>
         <div class="pv_caro">
-            <div class="pv_container" :style="{ transform: transformVal }">
+            <div class="pv_container" @mousedown="grabCursor" @mouseup="releasCursor" :style="{ transform: transformVal}" :class="grab ? 'grab' : ''">
                 <slot/>
             </div>
         </div>
@@ -34,6 +38,12 @@ export default {
       initIndex: 1,
       rewind: false,
       rtl: false,
+      grab: false,
+      grabbing: false,
+      mousePos: {
+        int: null,
+        end: null
+      }
     };
   },
   mounted() {
@@ -48,7 +58,7 @@ export default {
         return;
       }
       if (this.rewind && this.initIndex > this.lastIndex) {
-        this.initIndex = 1
+        this.initIndex = 1;
         this.transformData = 0;
         this.transformVal = `translateX(${this.direction}px)`;
         return;
@@ -69,14 +79,14 @@ export default {
         return;
       }
 
-
       if (this.rewind && this.transformData <= 0) {
-        this.initIndex = this.lastIndex + 1
-        this.transformData = (((this.lastIndex - 1) * (this.card_width + this.gap)) + ((1 - (this.slidesToShow % 1)) * (this.card_width - this.gap)));
+        this.initIndex = this.lastIndex + 1;
+        this.transformData =
+          (this.lastIndex - 1) * (this.card_width + this.gap) +
+          (1 - (this.slidesToShow % 1)) * (this.card_width - this.gap);
         this.transformVal = `translateX(${this.direction}px)`;
         return;
       }
-
 
       if (this.initIndex > this.lastIndex) {
         --this.initIndex;
@@ -88,6 +98,28 @@ export default {
       --this.initIndex;
       this.transformData -= this.card_width + this.gap;
       this.transformVal = `translateX(${this.direction}px)`;
+    },
+    grabCursor(e) {
+      const container = document.querySelector(".pv_container");
+      if (this.grab) {
+        this.grabbing = !this.grabbing;
+        console.log(this.grabbing);
+        container.style.cursor = "grabbing";
+        container.style.userSelect = "none";
+        this.mousePos.int = e.clientX
+
+      }
+    },
+    releasCursor(e) {
+      const container = document.querySelector(".pv_container");
+      if (this.grab) {
+        this.grabbing = !this.grabbing;
+        console.log(this.grabbing);
+        container.style.cursor = "grab";
+        container.style.removeProperty("user-select");
+        this.mousePos.end = e.clientX
+        console.log(this.mousePos)
+      }
     },
   },
   computed: {
@@ -105,13 +137,13 @@ export default {
     lastIndex() {
       return this.cardCount - Math.floor(this.slidesToShow);
     },
-direction() {
-  if(!this.rtl) {
-    return this.transformData * -1
-  } else {
-    return this.transformData  
-  }
-}
+    direction() {
+      if (!this.rtl) {
+        return this.transformData * -1;
+      } else {
+        return this.transformData;
+      }
+    },
   },
 };
 </script>
@@ -127,6 +159,12 @@ body {
   &::-webkit-scrollbar {
     display: none;
   }
+}
+.grab {
+  cursor: grab;
+}
+.grabbing {
+  cursor: grabbing;
 }
 .pv_container {
   width: max-content;

@@ -1,24 +1,15 @@
 <template>
   <div id="app">
     <PvCarrousel>
-      <div class="pv_card">1</div>
-      <div class="pv_card">2</div>
-      <div class="pv_card">3</div>
-      <div class="pv_card">4</div>
-      <div class="pv_card">5</div>
-      <div class="pv_card">6</div>
-      <div class="pv_card">7</div>
-      <div class="pv_card">8</div>
-      <div class="pv_card">9</div>
-      <div class="pv_card">10</div>
+      <div class="pv_card" v-for="i in 10" :key="i">{{i}}</div>
     </PvCarrousel>
   </div>
 </template>
 
 <script>
-import PvCarrousel from "./components/PvCarrousel.vue";
+import PvCarrousel from './components/PvCarrousel.vue';
 export default {
-  name: "App",
+  name: 'App',
   components: {
     PvCarrousel,
   },
