@@ -30,7 +30,7 @@ export default {
     return {
       container_width: null,
       card_width: null,
-      transformData: null,
+      transformData: 0,
       transformVal: "translateX(0px)",
       gap: 10,
       cardCount: null,
@@ -40,10 +40,8 @@ export default {
       rtl: false,
       grab: false,
       grabbing: false,
-      mousePos: {
-        int: null,
-        end: null
-      }
+      arr: [],
+      grabMovment: 0,
     };
   },
   mounted() {
@@ -99,6 +97,17 @@ export default {
       this.transformData -= this.card_width + this.gap;
       this.transformVal = `translateX(${this.direction}px)`;
     },
+    mousePos(e) {
+      this.arr.push(e.clientX);
+      // console.log(this.arr[this.arr.length - 1] - this.arr[0]);
+      // console.log(this.arr)
+              // ------------------------------------------------------------------------------------
+        this.grabMovment = this.arr[this.arr.length - 1] - this.arr[0];
+        this.transformData += this.grabMovment * -1;
+        this.transformVal = `translateX(${this.direction}px)`;
+        console.log( this.grabMovment)
+        console.log( this.transformData)
+    },
     grabCursor(e) {
       const container = document.querySelector(".pv_container");
       if (this.grab) {
@@ -106,7 +115,8 @@ export default {
         console.log(this.grabbing);
         container.style.cursor = "grabbing";
         container.style.userSelect = "none";
-        this.mousePos.int = e.clientX
+        this.mousePos.int = e.clientX;
+        container.addEventListener("mousemove", this.mousePos);
 
       }
     },
@@ -117,8 +127,10 @@ export default {
         console.log(this.grabbing);
         container.style.cursor = "grab";
         container.style.removeProperty("user-select");
-        this.mousePos.end = e.clientX
-        console.log(this.mousePos)
+        this.mousePos.end = e.clientX;
+        container.removeEventListener("mousemove", this.mousePos);
+        this.arr.splice(0, this.arr.length);
+        this.grabMovment = 0;
       }
     },
   },
