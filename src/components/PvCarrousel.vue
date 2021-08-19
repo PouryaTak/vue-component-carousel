@@ -2,16 +2,20 @@
     <div :style="rtl ? 'direction:rtl' : ''">
       <div style="display:flex; margin-bottom: 20px; justify-content:center; background:#eee">
         <div style="margin: 0 10px">
-          <label for="grab">grab</label>
+          <label for="grab">Grab</label>
         <input type="checkbox" name="grab" id="grab" @change="grab = !grab">
         </div>
         <div style="margin: 0 10px">
-          <label for="rewind">rewind</label>
+          <label for="rewind">Rewind</label>
         <input type="checkbox" name="rewind" id="rewind" @change="rewind = !rewind">
         </div>
         <div style="margin: 0 10px">
-          <label for="rtl">rtl</label>
+          <label for="rtl">RTL</label>
         <input type="checkbox" name="rtl" id="rtl" @change="rtl = !rtl">
+        </div>
+        <div style="margin: 0 10px">
+          <label for="loop">Loop</label>
+        <input type="checkbox" name="loop" id="loop" @change="loop = !loop">
         </div>
       </div>
         <button @click="movePrv">Prev</button>
@@ -42,6 +46,7 @@ export default {
       grabbing: false,
       arr: [],
       grabMovment: 0,
+      loop: false,
     };
   },
   mounted() {
@@ -61,12 +66,15 @@ export default {
         this.transformVal = `translateX(${this.direction}px)`;
         return;
       }
-      if (this.initIndex == this.lastIndex) {
+      if (!this.loop && this.initIndex == this.lastIndex) {
         ++this.initIndex;
         this.transformData +=
           (1 - (this.slidesToShow % 1)) * this.card_width - this.gap;
         this.transformVal = `translateX(${this.direction}px)`;
         return;
+      }
+      if(this.loop && this.initIndex == this.lastIndex) {
+        alert('bingo')
       }
       ++this.initIndex;
       this.transformData += this.card_width + this.gap;
@@ -77,7 +85,7 @@ export default {
         return;
       }
 
-      if (this.rewind && this.transformData <= 0) {
+      if (this.rewind && this.transformData <= 0 || this.initIndex == 1) {
         this.initIndex = this.lastIndex + 1;
         this.transformData =
           (this.lastIndex - 1) * (this.card_width + this.gap) +
@@ -101,12 +109,25 @@ export default {
       this.arr.push(e.clientX);
       // console.log(this.arr[this.arr.length - 1] - this.arr[0]);
       // console.log(this.arr)
-              // ------------------------------------------------------------------------------------
-        this.grabMovment = this.arr[this.arr.length - 1] - this.arr[0];
-        this.transformData += this.grabMovment * -1;
-        this.transformVal = `translateX(${this.direction}px)`;
-        console.log( this.grabMovment)
-        console.log( this.transformData)
+      // ------------------------------------------------------------------------------------
+      this.grabMovment = this.arr[this.arr.length - 1] - this.arr[0];
+      if (this.grabMovment > 0) {
+        if (this.transformData = 0) {
+          return;
+        } else {
+          this.transformData -= (this.card_width + this.gap) / 8;
+        }
+      } else if (this.grabMovment < 0) {
+        if (this.transformData >= (this.lastIndex - 1) * (this.card_width + this.gap)) {
+          return;
+        } else {
+          this.transformData += (this.card_width + this.gap) / 8;
+        }
+      }
+
+      this.transformVal = `translateX(${this.direction}px)`;
+      console.log(this.grabMovment);
+      console.log(this.transformData);
     },
     grabCursor(e) {
       const container = document.querySelector(".pv_container");
@@ -117,7 +138,6 @@ export default {
         container.style.userSelect = "none";
         this.mousePos.int = e.clientX;
         container.addEventListener("mousemove", this.mousePos);
-
       }
     },
     releasCursor(e) {
