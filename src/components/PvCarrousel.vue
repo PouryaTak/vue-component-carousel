@@ -45,7 +45,7 @@ export default {
       grab: false,
       grabbing: false,
       arr: [],
-      grabMovment: 0,
+      mouseMove: 0,
       loop: false,
     };
   },
@@ -73,8 +73,8 @@ export default {
         this.transformVal = `translateX(${this.direction}px)`;
         return;
       }
-      if(this.loop && this.initIndex == this.lastIndex) {
-        alert('bingo')
+      if (this.loop && this.initIndex == this.lastIndex) {
+        alert("bingo");
       }
       ++this.initIndex;
       this.transformData += this.card_width + this.gap;
@@ -85,7 +85,7 @@ export default {
         return;
       }
 
-      if (this.rewind && this.transformData <= 0 || this.initIndex == 1) {
+      if ((this.rewind && this.transformData <= 0) || this.initIndex == 1) {
         this.initIndex = this.lastIndex + 1;
         this.transformData =
           (this.lastIndex - 1) * (this.card_width + this.gap) +
@@ -105,28 +105,26 @@ export default {
       this.transformData -= this.card_width + this.gap;
       this.transformVal = `translateX(${this.direction}px)`;
     },
-    mousePos(e) {
+    grabMove (e) {
       this.arr.push(e.clientX);
-      // console.log(this.arr[this.arr.length - 1] - this.arr[0]);
+      console.log(this.arr[this.arr.length - 1] - this.arr[0]);
       // console.log(this.arr)
       // ------------------------------------------------------------------------------------
-      this.grabMovment = this.arr[this.arr.length - 1] - this.arr[0];
-      if (this.grabMovment > 0) {
-        if (this.transformData = 0) {
+      this.mouseMove = this.arr[this.arr.length - 1] - this.arr[0];
+      if (this.mouseMove >= 0 && this.transformData !== 0) {
+        this.transformData -= this.card_width + this.gap;
+      } 
+      else if (this.mouseMove < 0) {
+        if (this.transformData < (this.lastIndex - 1) * (this.card_width + this.gap)) {
+          this.transformData += this.card_width + this.gap;
+        } 
+        else {
           return;
-        } else {
-          this.transformData -= (this.card_width + this.gap) / 8;
-        }
-      } else if (this.grabMovment < 0) {
-        if (this.transformData >= (this.lastIndex - 1) * (this.card_width + this.gap)) {
-          return;
-        } else {
-          this.transformData += (this.card_width + this.gap) / 8;
         }
       }
 
       this.transformVal = `translateX(${this.direction}px)`;
-      console.log(this.grabMovment);
+      console.log(this.mouseMove);
       console.log(this.transformData);
     },
     grabCursor(e) {
@@ -136,8 +134,8 @@ export default {
         console.log(this.grabbing);
         container.style.cursor = "grabbing";
         container.style.userSelect = "none";
-        this.mousePos.int = e.clientX;
-        container.addEventListener("mousemove", this.mousePos);
+        this.grabMove.int = e.clientX;
+        container.addEventListener("mousemove", this.grabMove);
       }
     },
     releasCursor(e) {
@@ -147,10 +145,10 @@ export default {
         console.log(this.grabbing);
         container.style.cursor = "grab";
         container.style.removeProperty("user-select");
-        this.mousePos.end = e.clientX;
-        container.removeEventListener("mousemove", this.mousePos);
+        this.grabMove.end = e.clientX;
+        container.removeEventListener("mousemove", this.grabMove);
         this.arr.splice(0, this.arr.length);
-        this.grabMovment = 0;
+        this.mouseMove = 0;
       }
     },
   },
