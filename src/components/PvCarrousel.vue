@@ -28,6 +28,18 @@
     </div>
 </template>
 <script>
+const debounce = (func, delay, { leading } = {}) => {
+    let timerId
+
+    return (...args) => {
+        if (!timerId && leading) {
+            func(...args)
+        }
+        clearTimeout(timerId)
+
+        timerId = setTimeout(() => func(...args), delay)
+    }
+}
 export default {
   name: "PvCarrousel",
   data() {
@@ -105,20 +117,40 @@ export default {
       this.transformData -= this.card_width + this.gap;
       this.transformVal = `translateX(${this.direction}px)`;
     },
-    grabMove (e) {
+    grabMove(e) {
       this.arr.push(e.clientX);
       console.log(this.arr[this.arr.length - 1] - this.arr[0]);
       // console.log(this.arr)
       // ------------------------------------------------------------------------------------
       this.mouseMove = this.arr[this.arr.length - 1] - this.arr[0];
-      if (this.mouseMove >= 0 && this.transformData !== 0) {
+      if (this.mouseMove > 0 && this.transformData !== 0) {
+        if (this.initIndex > this.lastIndex) {
+          --this.initIndex;
+          this.transformData -=
+            (1 - (this.slidesToShow % 1)) * this.card_width - this.gap;
+          this.transformVal = `translateX(${this.direction}px)`;
+          return;
+        }
         this.transformData -= this.card_width + this.gap;
-      } 
-      else if (this.mouseMove < 0) {
-        if (this.transformData < (this.lastIndex - 1) * (this.card_width + this.gap)) {
-          this.transformData += this.card_width + this.gap;
-        } 
-        else {
+        --this.initIndex;
+      } else if (this.mouseMove < 0) {
+        if (
+          this.transformData <
+          (this.lastIndex - 1) * (this.card_width + this.gap)
+        ) {
+          if (!this.loop && this.initIndex !== this.lastIndex) {
+           this.transformData += this.card_width + this.gap;
+            ++this.initIndex
+            
+          }
+          if (!this.loop && this.initIndex == this.lastIndex) {
+            ++this.initIndex;
+            this.transformData +=
+              (1 - (this.slidesToShow % 1)) * this.card_width - this.gap;
+            this.transformVal = `translateX(${this.direction}px)`;
+            return;
+          }
+        } else {
           return;
         }
       }
