@@ -1,25 +1,5 @@
 <template lang="">
     <div :style="rtl ? 'direction:rtl' : ''">
-      <div style="display:flex; margin-bottom: 20px; justify-content:center; background:#eee">
-        <div style="margin: 0 10px">
-          <label for="grab">Grab</label>
-        <input type="checkbox" name="grab" id="grab" @change="grab = !grab">
-        </div>
-        <div style="margin: 0 10px">
-          <label for="rewind">Rewind</label>
-        <input type="checkbox" name="rewind" id="rewind" @change="rewind = !rewind">
-        </div>
-        <div style="margin: 0 10px">
-          <label for="rtl">RTL</label>
-        <input type="checkbox" name="rtl" id="rtl" @change="rtl = !rtl">
-        </div>
-        <div style="margin: 0 10px">
-          <label for="loop">Loop</label>
-        <input type="checkbox" name="loop" id="loop" @change="loop = !loop">
-        </div>
-      </div>
-        <button @click="movePrv">Prev</button>
-        <button @click="moveNxt">next</button>
         <div class="pv_caro">
             <div class="pv_container" @mousedown="grabCursor" @mouseup="releasCursor" :style="{ transform: transformVal}" :class="grab ? 'grab' : ''">
                 <slot/>
@@ -52,14 +32,33 @@ export default {
       cardCount: null,
       overalLenght: null,
       initIndex: 1,
-      rewind: false,
-      rtl: false,
-      grab: false,
+      // rewind: false,
+      // rtl: false,
+      // grab: false,
       grabbing: false,
       arr: [],
       mouseMove: 0,
       loop: false,
     };
+  },
+  props: {
+rewind: {
+  type: Boolean,
+  default: false,
+},
+rtl: {
+  type: Boolean,
+  default: false,
+},
+grab: {
+  type: Boolean,
+  default: false,
+},
+loop: {
+  type: Boolean,
+  default: false,
+},
+
   },
   mounted() {
     this.card_width = document.querySelector(".pv_card").clientWidth;
