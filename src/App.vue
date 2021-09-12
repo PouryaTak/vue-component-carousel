@@ -20,7 +20,7 @@
       </div>
         <button @click="$refs.pvcarousel.movePrv()">Prev</button>
         <button @click="$refs.pvcarousel.moveNxt()">next</button>
-    <PvCarrousel ref="pvcarousel" :grab="grab" :rewind="rewind" :rtl="rtl" :loop="loop">
+    <PvCarrousel ref="pvcarousel" :grab="grab" :rewind="rewind" :rtl="rtl" :loop="loop" :gap="10">
       <div class="pv_card" v-for="i in 10" :key="i" >{{i}}</div>
     </PvCarrousel>
   </div>

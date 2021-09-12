@@ -1,7 +1,7 @@
 <template lang="">
     <div :style="rtl ? 'direction:rtl' : ''">
         <div class="pv_caro">
-            <div class="pv_container" @mousedown="grabCursor" @mouseup="releasCursor" :style="{ transform: transformVal}" :class="grab ? 'grab' : ''">
+            <div class="pv_container" @mousedown="grabCursor" @mouseup="releasCursor" :style="{ transform: transformVal, gap: gap +'px'}" :class="grab ? 'grab' : ''">
                 <slot/>
             </div>
         </div>
@@ -9,17 +9,17 @@
 </template>
 <script>
 const debounce = (func, delay, { leading } = {}) => {
-    let timerId
+  let timerId;
 
-    return (...args) => {
-        if (!timerId && leading) {
-            func(...args)
-        }
-        clearTimeout(timerId)
-
-        timerId = setTimeout(() => func(...args), delay)
+  return (...args) => {
+    if (!timerId && leading) {
+      func(...args);
     }
-}
+    clearTimeout(timerId);
+
+    timerId = setTimeout(() => func(...args), delay);
+  };
+};
 export default {
   name: "PvCarrousel",
   data() {
@@ -28,37 +28,40 @@ export default {
       card_width: null,
       transformData: 0,
       transformVal: "translateX(0px)",
-      gap: 10,
+      // gap: 10,
       cardCount: null,
       overalLenght: null,
       initIndex: 1,
-      // rewind: false,
-      // rtl: false,
-      // grab: false,
       grabbing: false,
       arr: [],
       mouseMove: 0,
-      loop: false,
+      // rewind: false,
+      // rtl: false,
+      // grab: false,
+      // loop: false
     };
   },
   props: {
-rewind: {
-  type: Boolean,
-  default: false,
-},
-rtl: {
-  type: Boolean,
-  default: false,
-},
-grab: {
-  type: Boolean,
-  default: false,
-},
-loop: {
-  type: Boolean,
-  default: false,
-},
-
+    rewind: {
+      type: Boolean,
+      default: false,
+    },
+    rtl: {
+      type: Boolean,
+      default: false,
+    },
+    grab: {
+      type: Boolean,
+      default: false,
+    },
+    loop: {
+      type: Boolean,
+      default: false,
+    },
+    gap: {
+      type: Number,
+      default: 10,
+    },
   },
   mounted() {
     this.card_width = document.querySelector(".pv_card").clientWidth;
@@ -80,7 +83,7 @@ loop: {
       if (!this.loop && this.initIndex == this.lastIndex) {
         ++this.initIndex;
         this.transformData +=
-          (1 - (this.slidesToShow % 1)) * this.card_width - this.gap;
+          (1 - (this.slidesToShow % 1)) * (this.card_width - this.gap);
         this.transformVal = `translateX(${this.direction}px)`;
         return;
       }
@@ -138,9 +141,8 @@ loop: {
           (this.lastIndex - 1) * (this.card_width + this.gap)
         ) {
           if (!this.loop && this.initIndex !== this.lastIndex) {
-           this.transformData += this.card_width + this.gap;
-            ++this.initIndex
-            
+            this.transformData += this.card_width + this.gap;
+            ++this.initIndex;
           }
           if (!this.loop && this.initIndex == this.lastIndex) {
             ++this.initIndex;
@@ -232,7 +234,7 @@ body {
   height: auto;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  // gap: 10px;
   margin: 15px 0;
 }
 </style>
