@@ -190,7 +190,7 @@ export default {
       );
     },
     slidesToShow() {
-      //how many slides can be seen in a viewport
+      // how many slides can be seen in a viewport
       return this.container_width / (this.card_width + this.gap);
     },
     extra() {
@@ -200,10 +200,13 @@ export default {
       return this.cardCount - Math.floor(this.slidesToShow);
     },
     direction() {
-      if (!this.rtl) {
-        return this.transformData * -1;
-      } else {
+      if (this.transformData < 0) {
+        this.transformData = 0;
+      }
+      if (this.rtl) {
         return this.transformData;
+      } else {
+        return this.transformData * -1;
       }
     },
   },
@@ -235,5 +238,16 @@ body {
   flex-wrap: wrap;
   // gap: 10px;
   margin: 15px 0;
+}
+
+.dot_container {
+  display: flex;
+  gap: 10px;
+}
+.dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 100px;
+  background: #eee;
 }
 </style>
