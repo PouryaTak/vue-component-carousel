@@ -5,6 +5,9 @@
                 <slot/>
             </div>
         </div>
+        <div class="pv_dots">
+          <div class="pv_dot" v-for="i in pages" :key="i" @click="dotFunc(i)" :class="dot == i ? 'opacity':''"></div>
+        </div>
     </div>
 </template>
 <script>
@@ -35,6 +38,8 @@ export default {
       grabbing: false,
       arr: [],
       mouseMove: 0,
+      pages: null,
+      dot : 1,
       // rewind: false,
       // rtl: false,
       // grab: false,
@@ -68,6 +73,7 @@ export default {
     this.overalLenght = document.querySelector(".pv_container").clientWidth;
     this.container_width = document.querySelector(".pv_caro").clientWidth;
     this.cardCount = document.querySelectorAll(".pv_card").length;
+    this.pages = Math.ceil(this.slidePage);
   },
   methods: {
     moveNxt() {
@@ -181,6 +187,19 @@ export default {
         this.mouseMove = 0;
       }
     },
+    dotFunc(num) {
+      this.dot = num
+      if (num == this.pages) {
+        this.initIndex = this.lastIndex + 1;
+        this.transformData =
+          (this.card_width + this.gap) * (this.lastIndex - 1) + this.extra;
+        this.transformVal = `translateX(${this.direction}px)`;
+        return;
+      }
+      this.initIndex = (num - 1) * Math.floor(this.slidesToShow) + 1;
+      this.transformData = (this.card_width + this.gap) * (this.initIndex - 1);
+      this.transformVal = `translateX(${this.direction}px)`;
+    },
   },
   computed: {
     slidePage() {
@@ -240,14 +259,19 @@ body {
   margin: 15px 0;
 }
 
-.dot_container {
+.pv_dots {
   display: flex;
   gap: 10px;
 }
-.dot {
+.pv_dot {
   width: 20px;
   height: 20px;
   border-radius: 100px;
-  background: #eee;
+  background: rgb(196, 196, 196);
+  cursor: pointer;
+  opacity: .5;
+}
+.opacity {
+  opacity: 1;
 }
 </style>

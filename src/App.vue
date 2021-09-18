@@ -1,45 +1,64 @@
 <template>
   <div id="app">
-    <div style="display:flex; margin-bottom: 20px; justify-content:center; background:#eee">
-        <div style="margin: 0 10px">
-          <label for="grab">Grab</label>
-        <input type="checkbox" name="grab" id="grab" @change="grab = !grab">
-        </div>
-        <div style="margin: 0 10px">
-          <label for="rewind">Rewind</label>
-        <input type="checkbox" name="rewind" id="rewind" @change="rewind = !rewind">
-        </div>
-        <div style="margin: 0 10px">
-          <label for="rtl">RTL</label>
-        <input type="checkbox" name="rtl" id="rtl" @change="rtl = !rtl">
-        </div>
-        <div style="margin: 0 10px">
-          <label for="loop">Loop</label>
-        <input type="checkbox" name="loop" id="loop" @change="loop = !loop">
-        </div>
+    <div
+      style="
+        display: flex;
+        margin-bottom: 20px;
+        justify-content: center;
+        background: #eee;
+      "
+    >
+      <div style="margin: 0 10px">
+        <label for="grab">Grab</label>
+        <input type="checkbox" name="grab" id="grab" @change="grab = !grab" />
       </div>
-        <button @click="$refs.pvcarousel.movePrv()">Prev</button>
-        <button @click="$refs.pvcarousel.moveNxt()">next</button>
-    <PvCarrousel ref="pvcarousel" :grab="grab" :rewind="rewind" :rtl="rtl" :loop="loop" :gap="10">
-      <div class="pv_card" v-for="i in 10" :key="i" >{{i}}</div>
+      <div style="margin: 0 10px">
+        <label for="rewind">Rewind</label>
+        <input
+          type="checkbox"
+          name="rewind"
+          id="rewind"
+          @change="rewind = !rewind"
+        />
+      </div>
+      <div style="margin: 0 10px">
+        <label for="rtl">RTL</label>
+        <input type="checkbox" name="rtl" id="rtl" @change="rtl = !rtl" />
+      </div>
+      <div style="margin: 0 10px">
+        <label for="loop">Loop</label>
+        <input type="checkbox" name="loop" id="loop" @change="loop = !loop" />
+      </div>
+    </div>
+    <button @click="$refs.pvcarousel.movePrv()">Prev</button>
+    <button @click="$refs.pvcarousel.moveNxt()">next</button>
+    <PvCarrousel
+      ref="pvcarousel"
+      :grab="grab"
+      :rewind="rewind"
+      :rtl="rtl"
+      :loop="loop"
+      :gap="10"
+    >
+      <div class="pv_card" v-for="i in 10" :key="i">{{ i }}</div>
     </PvCarrousel>
   </div>
 </template>
 
 <script>
-import PvCarrousel from './components/PvCarrousel.vue';
+import PvCarrousel from "./components/PvCarrousel.vue";
 export default {
-  name: 'App',
+  name: "App",
   components: {
     PvCarrousel,
   },
-  data(){
+  data() {
     return {
       grab: false,
       rewind: false,
       rtl: false,
       loop: false,
-    }
+    };
   },
 };
 </script>
