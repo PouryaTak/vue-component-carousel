@@ -5,7 +5,7 @@
                 <slot/>
             </div>
         </div>
-        <div class="pv_dots">
+        <div class="pv_dots" v-if="dots">
           <div class="pv_dot" v-for="i in pages" :key="i" @click="dotFunc(i)" :class="dot == i ? 'opacity':''"></div>
         </div>
     </div>
@@ -39,7 +39,7 @@ export default {
       arr: [],
       mouseMove: 0,
       pages: null,
-      dot : 1,
+      dot: 1,
       // rewind: false,
       // rtl: false,
       // grab: false,
@@ -67,6 +67,14 @@ export default {
       type: Number,
       default: 10,
     },
+    dots: {
+      type: Boolean,
+      default: true,
+    },
+    chunk: {
+      type: Boolean,
+      default: false,
+    },
   },
   mounted() {
     this.card_width = document.querySelector(".pv_card").clientWidth;
@@ -77,6 +85,12 @@ export default {
   },
   methods: {
     moveNxt() {
+      if (this.chunk) {
+        this.dotFunc(
+          this.dot == this.pages ? (this.rewind ? 1 : this.pages) : ++this.dot
+        );
+        return;
+      }
       if (!this.rewind && this.initIndex > this.lastIndex) {
         return;
       }
@@ -101,6 +115,13 @@ export default {
       this.transformVal = `translateX(${this.direction}px)`;
     },
     movePrv() {
+      if (this.chunk) {
+        this.dotFunc(
+          this.dot === 1 ? (this.rewind ? this.pages : 1) : --this.dot
+        );
+        return;
+      }
+
       if (!this.rewind && this.transformData <= 0) {
         return;
       }
@@ -130,36 +151,12 @@ export default {
       // ------------------------------------------------------------------------------------
       this.mouseMove = this.arr[this.arr.length - 1] - this.arr[0]; // to check the direction of grabbing
       if (this.mouseMove > 0 && this.transformData !== 0) {
-        if (this.initIndex > this.lastIndex) {
-          --this.initIndex;
-          this.transformData -= this.extra;
-          this.transformVal = `translateX(${this.direction}px)`;
-          return;
-        }
-        this.transformData -= this.card_width + this.gap;
-        --this.initIndex;
+        this.transformData -= 10;
+        this.transformVal = `translateX(${this.direction}px)`;
       } else if (this.mouseMove < 0) {
-        if (
-          this.transformData <
-          (this.lastIndex - 1) * (this.card_width + this.gap)
-        ) {
-          if (!this.loop && this.initIndex !== this.lastIndex) {
-            this.transformData += this.card_width + this.gap;
-            ++this.initIndex;
-          }
-          if (!this.loop && this.initIndex == this.lastIndex) {
-            ++this.initIndex;
-            this.transformData +=
-              (1 - (this.slidesToShow % 1)) * this.card_width - this.gap;
-            this.transformVal = `translateX(${this.direction}px)`;
-            return;
-          }
-        } else {
-          return;
-        }
+        this.transformData += 10;
+        this.transformVal = `translateX(${this.direction}px)`;
       }
-
-      this.transformVal = `translateX(${this.direction}px)`;
       console.log(this.mouseMove);
       console.log(this.transformData);
     },
@@ -188,7 +185,7 @@ export default {
       }
     },
     dotFunc(num) {
-      this.dot = num
+      this.dot = num;
       if (num == this.pages) {
         this.initIndex = this.lastIndex + 1;
         this.transformData =
@@ -226,6 +223,15 @@ export default {
         return this.transformData;
       } else {
         return this.transformData * -1;
+      }
+    },
+  },
+  watch: {
+    mouseMove(newval, oldval) {
+      if (newval < 0) {
+        console.log(
+          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        );
       }
     },
   },
@@ -269,7 +275,7 @@ body {
   border-radius: 100px;
   background: rgb(196, 196, 196);
   cursor: pointer;
-  opacity: .5;
+  opacity: 0.5;
 }
 .opacity {
   opacity: 1;

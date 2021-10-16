@@ -29,6 +29,10 @@
         <label for="loop">Loop</label>
         <input type="checkbox" name="loop" id="loop" @change="loop = !loop" />
       </div>
+      <div style="margin: 0 10px">
+        <label for="chunk">chunk</label>
+        <input type="checkbox" name="chunk" id="chunk" @change="chunk = !chunk" />
+      </div>
     </div>
     <button @click="$refs.pvcarousel.movePrv()">Prev</button>
     <button @click="$refs.pvcarousel.moveNxt()">next</button>
@@ -39,6 +43,7 @@
       :rtl="rtl"
       :loop="loop"
       :gap="10"
+      :chunk="chunk"
     >
       <div class="pv_card" v-for="i in 10" :key="i">{{ i }}</div>
     </PvCarrousel>
@@ -58,6 +63,7 @@ export default {
       rewind: false,
       rtl: false,
       loop: false,
+      chunk: false,
     };
   },
 };
