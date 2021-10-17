@@ -51,25 +51,28 @@
 </template>
 
 <script>
-import PvCarrousel from "./components/PvCarrousel.vue";
+import PvCarrousel from '@/components/PvCarrousel.vue'
 export default {
-  name: "App",
+  name: 'App',
   components: {
-    PvCarrousel,
+    PvCarrousel
   },
-  data() {
+  data () {
     return {
       grab: false,
       rewind: false,
       rtl: false,
       loop: false,
-      chunk: false,
-    };
-  },
-};
+      chunk: false
+    }
+  }
+}
 </script>
 
 <style lang="scss">
+body {
+  margin: 0;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   color: #2c3e50;

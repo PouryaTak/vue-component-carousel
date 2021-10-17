@@ -1,28 +1,28 @@
 <template lang="">
     <div :style="rtl ? 'direction:rtl' : ''">
-        <div class="pv_caro">
-            <div class="pv_container" @mousedown="grabCursor" @mouseup="releasCursor" :style="{ transform: transformVal, gap: gap +'px'}" :class="grab ? 'grab' : ''">
+        <div ref="pv_caro" class="pv_caro">
+            <div ref="pv_container" class="pv_container" @mousedown="grabCursor" @mouseup="releasCursor" :style="{ transform: transformVal, gap: gap +'px'}" :class="grab ? 'grab' : ''">
                 <slot/>
             </div>
         </div>
-        <div class="pv_dots" v-if="dots">
-          <div class="pv_dot" v-for="i in pages" :key="i" @click="dotFunc(i)" :class="dot == i ? 'opacity':''"></div>
+        <div ref="pv_dots" class="pv_dots" v-if="dots">
+          <div ref="pv_pv_dot" class="pv_dot" v-for="i in pages" :key="i" @click="dotFunc(i)" :class="dot == i ? 'opacity':''"></div>
         </div>
     </div>
 </template>
 <script>
-const debounce = (func, delay, { leading } = {}) => {
-  let timerId;
+// const debounce = (func, delay, { leading } = {}) => {
+//   let timerId;
 
-  return (...args) => {
-    if (!timerId && leading) {
-      func(...args);
-    }
-    clearTimeout(timerId);
+//   return (...args) => {
+//     if (!timerId && leading) {
+//       func(...args);
+//     }
+//     clearTimeout(timerId);
 
-    timerId = setTimeout(() => func(...args), delay);
-  };
-};
+//     timerId = setTimeout(() => func(...args), delay);
+//   };
+// };
 export default {
   name: "PvCarrousel",
   data() {
@@ -77,11 +77,13 @@ export default {
     },
   },
   mounted() {
-    this.card_width = document.querySelector(".pv_card").clientWidth;
-    this.overalLenght = document.querySelector(".pv_container").clientWidth;
-    this.container_width = document.querySelector(".pv_caro").clientWidth;
-    this.cardCount = document.querySelectorAll(".pv_card").length;
-    this.pages = Math.ceil(this.slidePage);
+    if (process.browser) {
+      this.card_width = document.querySelector(".pv_card").clientWidth;
+      this.overalLenght = this.$refs.pv_container.clientWidth;
+      this.container_width = this.$refs.pv_caro.clientWidth;
+      this.cardCount = document.querySelectorAll(".pv_card").length;
+      this.pages = Math.ceil(this.slidePage);
+    }
   },
   methods: {
     moveNxt() {
@@ -237,18 +239,15 @@ export default {
   },
 };
 </script>
-<style lang="scss">
-body {
-  margin: 0;
+<style>
+.pv_caro * {
+  transition: all 0.3s ease;
 }
 .pv_caro {
   overflow: scroll;
-  * {
-    transition: all 0.3s ease;
-  }
-  &::-webkit-scrollbar {
-    display: none;
-  }
+}
+.pv_caro::-webkit-scrollbar {
+  display: none;
 }
 .grab {
   cursor: grab;
@@ -261,7 +260,6 @@ body {
   height: auto;
   display: flex;
   flex-wrap: wrap;
-  // gap: 10px;
   margin: 15px 0;
 }
 
