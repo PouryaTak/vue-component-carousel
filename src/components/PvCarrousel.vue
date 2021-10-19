@@ -1,7 +1,7 @@
 <template lang="">
     <div :style="rtl ? 'direction:rtl' : ''">
         <div ref="pv_caro" class="pv_caro">
-            <div ref="pv_container" class="pv_container" @mousedown="grabCursor" @mouseup="releasCursor" :style="{ transform: transformVal, gap: gap +'px'}" :class="grab ? 'grab' : ''">
+            <div ref="pv_container" class="pv_container" @mousedown="grabCursor" @mouseup="releasCursor" :style="{ transform: transform_data, gap: gap +'px'}" :class="grab ? 'grab' : ''">
                 <slot/>
             </div>
         </div>
@@ -27,23 +27,18 @@ export default {
   name: 'PvCarrousel',
   data () {
     return {
-      container_width: null,
-      card_width: null,
-      transformData: 0,
-      transformVal: 'translateX(0px)',
-      // gap: 10,
-      cardCount: null,
-      overalLenght: null,
+      width_of_viewport_container: null,
+      width_of_card: null,
+      transformation_value: 0,
+      transform_data: 'translateX(0px)',
+      number_of_all_cards: null,
+      width_of_cards_container: null,
       initIndex: 1,
       grabbing: false,
       arr: [],
       mouseMove: 0,
       pages: null,
       dot: 1
-      // rewind: false,
-      // rtl: false,
-      // grab: false,
-      // loop: false
     }
   },
   props: {
@@ -78,11 +73,45 @@ export default {
   },
   mounted () {
     if (process.browser) {
-      this.card_width = document.querySelector('.pv_card').clientWidth
-      this.overalLenght = this.$refs.pv_container.clientWidth
-      this.container_width = this.$refs.pv_caro.clientWidth
-      this.cardCount = document.querySelectorAll('.pv_card').length
-      this.pages = Math.ceil(this.slidePage)
+      this.width_of_card = document.querySelector('.pv_card').clientWidth
+      this.width_of_cards_container = this.$refs.pv_container.clientWidth
+      this.width_of_viewport_container = this.$refs.pv_caro.clientWidth
+      this.number_of_all_cards = document.querySelectorAll('.pv_card').length
+      this.pages = Math.ceil(this.number_of_chunks)
+    }
+  },
+  computed: {
+    number_of_chunks () {
+      // think of it as dots in carousel
+      return (
+        this.width_of_cards_container / ((this.number_of_cards_in_chunk * this.width_of_card)+(((this.number_of_cards_in_chunk - 1) * this.gap)))
+      )
+    },
+    number_of_cards_in_chunk () {
+      // how many cards can be seen in a viewport
+      const initial_value = this.width_of_viewport_container / (this.width_of_card + this.gap)
+      const total_width_of_cards = this.width_of_viewport_container - (Math.floor(initial_value) * this.gap)
+      return (total_width_of_cards / this.width_of_card)
+    },
+    // number_of_cards_in_chunk () {
+    //   // how many cards can be seen in a viewport
+    //   return this.width_of_viewport_container / (this.width_of_card + this.gap)
+    // },
+    extra_width () {
+      return ((1 - (this.number_of_cards_in_chunk % 1)) * 1)
+    },
+    lastIndex () {
+      return this.number_of_all_cards - Math.floor(this.number_of_cards_in_chunk)
+    },
+    direction () {
+      if (this.transformation_value < 0) {
+        return 0
+      }
+      if (this.rtl) {
+        return this.transformation_value
+      } else {
+        return this.transformation_value * -1
+      }
     }
   },
   methods: {
@@ -98,23 +127,23 @@ export default {
       }
       if (this.rewind && this.initIndex > this.lastIndex) {
         this.initIndex = 1
-        this.transformData = 0
-        this.transformVal = `translateX(${this.direction}px)`
+        this.transformation_value = 0
+        this.transform_data = `translateX(${this.direction}px)`
         return
       }
       if (!this.loop && this.initIndex == this.lastIndex) {
-        // when there is a little of last card left (adding an extra push)!
+        // when there is a little of last card left (adding an extra_width push)!
         ++this.initIndex
-        this.transformData += this.extra
-        this.transformVal = `translateX(${this.direction}px)`
+        this.transformation_value += this.extra_width
+        this.transform_data = `translateX(${this.direction}px)`
         return
       }
       if (this.loop && this.initIndex == this.lastIndex) {
         alert('bingo')
       }
       ++this.initIndex
-      this.transformData += this.card_width + this.gap
-      this.transformVal = `translateX(${this.direction}px)`
+      this.transformation_value += this.width_of_card + this.gap
+      this.transform_data = `translateX(${this.direction}px)`
     },
     movePrv () {
       if (this.chunk) {
@@ -124,27 +153,27 @@ export default {
         return
       }
 
-      if (!this.rewind && this.transformData <= 0) {
+      if (!this.rewind && this.transformation_value <= 0) {
         return
       }
 
-      if ((this.rewind && this.transformData <= 0) || this.initIndex == 1) {
+      if ((this.rewind && this.transformation_value <= 0) || this.initIndex == 1) {
         this.initIndex = this.lastIndex + 1
-        this.transformData =
-          (this.lastIndex - 1) * (this.card_width + this.gap) + this.extra
-        this.transformVal = `translateX(${this.direction}px)`
+        this.transformation_value =
+          (this.lastIndex - 1) * (this.width_of_card + this.gap) + this.extra_width
+        this.transform_data = `translateX(${this.direction}px)`
         return
       }
 
       if (this.initIndex > this.lastIndex) {
         --this.initIndex
-        this.transformData -= this.extra
-        this.transformVal = `translateX(${this.direction}px)`
+        this.transformation_value -= this.extra_width
+        this.transform_data = `translateX(${this.direction}px)`
         return
       }
       --this.initIndex
-      this.transformData -= this.card_width + this.gap
-      this.transformVal = `translateX(${this.direction}px)`
+      this.transformation_value -= this.width_of_card + this.gap
+      this.transform_data = `translateX(${this.direction}px)`
     },
     grabMove (e) {
       this.arr.push(e.clientX)
@@ -152,15 +181,15 @@ export default {
       // console.log(this.arr)
       // ------------------------------------------------------------------------------------
       this.mouseMove = this.arr[this.arr.length - 1] - this.arr[0] // to check the direction of grabbing
-      if (this.mouseMove > 0 && this.transformData !== 0) {
-        this.transformData -= 10
-        this.transformVal = `translateX(${this.direction}px)`
+      if (this.mouseMove > 0 && this.transformation_value !== 0) {
+        this.transformation_value -= 10
+        this.transform_data = `translateX(${this.direction}px)`
       } else if (this.mouseMove < 0) {
-        this.transformData += 10
-        this.transformVal = `translateX(${this.direction}px)`
+        this.transformation_value += 10
+        this.transform_data = `translateX(${this.direction}px)`
       }
       console.log(this.mouseMove)
-      console.log(this.transformData)
+      console.log(this.transformation_value)
     },
     grabCursor (e) {
       const container = document.querySelector('.pv_container')
@@ -190,53 +219,25 @@ export default {
       this.dot = num
       if (num == this.pages) {
         this.initIndex = this.lastIndex + 1
-        this.transformData =
-          (this.card_width + this.gap) * (this.lastIndex - 1) + this.extra
-        this.transformVal = `translateX(${this.direction}px)`
+        this.transformation_value =
+          (this.width_of_card + this.gap) * (this.lastIndex - 1) + this.extra_width
+        this.transform_data = `translateX(${this.direction}px)`
         return
       }
-      this.initIndex = (num - 1) * Math.floor(this.slidesToShow) + 1
-      this.transformData = (this.card_width + this.gap) * (this.initIndex - 1)
-      this.transformVal = `translateX(${this.direction}px)`
-    }
-  },
-  computed: {
-    slidePage () {
-      // think of it as dots in carousel
-      return (
-        this.overalLenght / (this.slidesToShow * (this.card_width - this.gap))
-      )
-    },
-    slidesToShow () {
-      // how many slides can be seen in a viewport
-      return this.container_width / (this.card_width + this.gap)
-    },
-    extra () {
-      return (1 - (this.slidesToShow % 1)) * (this.card_width - this.gap)
-    },
-    lastIndex () {
-      return this.cardCount - Math.floor(this.slidesToShow)
-    },
-    direction () {
-      if (this.transformData < 0) {
-        this.transformData = 0
-      }
-      if (this.rtl) {
-        return this.transformData
-      } else {
-        return this.transformData * -1
-      }
+      this.initIndex = (num - 1) * Math.floor(this.number_of_cards_in_chunk) + 1
+      this.transformation_value = (this.width_of_card + this.gap) * (this.initIndex - 1)
+      this.transform_data = `translateX(${this.direction}px)`
     }
   },
   watch: {
     mouseMove (newval, oldval) {
       if (newval < 0) {
         console.log(
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+          'moue moved!'
         )
       }
     },
-    slidePage (to, from) {
+    number_of_chunks (to, from) {
       this.pages = Math.ceil(to)
     }
   }
