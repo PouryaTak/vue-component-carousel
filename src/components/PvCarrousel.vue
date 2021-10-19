@@ -6,7 +6,7 @@
             </div>
         </div>
         <div ref="pv_dots" class="pv_dots" v-if="dots">
-          <div ref="pv_pv_dot" class="pv_dot" v-for="i in pages" :key="i" @click="dotFunc(i)" :class="dot == i ? 'opacity':''"></div>
+          <div ref="pv_dot" class="pv_dot" v-for="i in pages" :key="i" @click="dotFunc(i)" :class="dot == i ? 'opacity':''"></div>
         </div>
     </div>
 </template>
@@ -24,13 +24,13 @@
 //   };
 // };
 export default {
-  name: "PvCarrousel",
-  data() {
+  name: 'PvCarrousel',
+  data () {
     return {
       container_width: null,
       card_width: null,
       transformData: 0,
-      transformVal: "translateX(0px)",
+      transformVal: 'translateX(0px)',
       // gap: 10,
       cardCount: null,
       overalLenght: null,
@@ -39,205 +39,208 @@ export default {
       arr: [],
       mouseMove: 0,
       pages: null,
-      dot: 1,
+      dot: 1
       // rewind: false,
       // rtl: false,
       // grab: false,
       // loop: false
-    };
+    }
   },
   props: {
     rewind: {
       type: Boolean,
-      default: false,
+      default: false
     },
     rtl: {
       type: Boolean,
-      default: false,
+      default: false
     },
     grab: {
       type: Boolean,
-      default: false,
+      default: false
     },
     loop: {
       type: Boolean,
-      default: false,
+      default: false
     },
     gap: {
       type: Number,
-      default: 10,
+      default: 10
     },
     dots: {
       type: Boolean,
-      default: true,
+      default: true
     },
     chunk: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
-  mounted() {
+  mounted () {
     if (process.browser) {
-      this.card_width = document.querySelector(".pv_card").clientWidth;
-      this.overalLenght = this.$refs.pv_container.clientWidth;
-      this.container_width = this.$refs.pv_caro.clientWidth;
-      this.cardCount = document.querySelectorAll(".pv_card").length;
-      this.pages = Math.ceil(this.slidePage);
+      this.card_width = document.querySelector('.pv_card').clientWidth
+      this.overalLenght = this.$refs.pv_container.clientWidth
+      this.container_width = this.$refs.pv_caro.clientWidth
+      this.cardCount = document.querySelectorAll('.pv_card').length
+      this.pages = Math.ceil(this.slidePage)
     }
   },
   methods: {
-    moveNxt() {
+    moveNxt () {
       if (this.chunk) {
         this.dotFunc(
           this.dot == this.pages ? (this.rewind ? 1 : this.pages) : ++this.dot
-        );
-        return;
+        )
+        return
       }
       if (!this.rewind && this.initIndex > this.lastIndex) {
-        return;
+        return
       }
       if (this.rewind && this.initIndex > this.lastIndex) {
-        this.initIndex = 1;
-        this.transformData = 0;
-        this.transformVal = `translateX(${this.direction}px)`;
-        return;
+        this.initIndex = 1
+        this.transformData = 0
+        this.transformVal = `translateX(${this.direction}px)`
+        return
       }
       if (!this.loop && this.initIndex == this.lastIndex) {
         // when there is a little of last card left (adding an extra push)!
-        ++this.initIndex;
-        this.transformData += this.extra;
-        this.transformVal = `translateX(${this.direction}px)`;
-        return;
+        ++this.initIndex
+        this.transformData += this.extra
+        this.transformVal = `translateX(${this.direction}px)`
+        return
       }
       if (this.loop && this.initIndex == this.lastIndex) {
-        alert("bingo");
+        alert('bingo')
       }
-      ++this.initIndex;
-      this.transformData += this.card_width + this.gap;
-      this.transformVal = `translateX(${this.direction}px)`;
+      ++this.initIndex
+      this.transformData += this.card_width + this.gap
+      this.transformVal = `translateX(${this.direction}px)`
     },
-    movePrv() {
+    movePrv () {
       if (this.chunk) {
         this.dotFunc(
           this.dot === 1 ? (this.rewind ? this.pages : 1) : --this.dot
-        );
-        return;
+        )
+        return
       }
 
       if (!this.rewind && this.transformData <= 0) {
-        return;
+        return
       }
 
       if ((this.rewind && this.transformData <= 0) || this.initIndex == 1) {
-        this.initIndex = this.lastIndex + 1;
+        this.initIndex = this.lastIndex + 1
         this.transformData =
-          (this.lastIndex - 1) * (this.card_width + this.gap) + this.extra;
-        this.transformVal = `translateX(${this.direction}px)`;
-        return;
+          (this.lastIndex - 1) * (this.card_width + this.gap) + this.extra
+        this.transformVal = `translateX(${this.direction}px)`
+        return
       }
 
       if (this.initIndex > this.lastIndex) {
-        --this.initIndex;
-        this.transformData -= this.extra;
-        this.transformVal = `translateX(${this.direction}px)`;
-        return;
+        --this.initIndex
+        this.transformData -= this.extra
+        this.transformVal = `translateX(${this.direction}px)`
+        return
       }
-      --this.initIndex;
-      this.transformData -= this.card_width + this.gap;
-      this.transformVal = `translateX(${this.direction}px)`;
+      --this.initIndex
+      this.transformData -= this.card_width + this.gap
+      this.transformVal = `translateX(${this.direction}px)`
     },
-    grabMove(e) {
-      this.arr.push(e.clientX);
-      console.log(this.arr[this.arr.length - 1] - this.arr[0]);
+    grabMove (e) {
+      this.arr.push(e.clientX)
+      console.log(this.arr[this.arr.length - 1] - this.arr[0])
       // console.log(this.arr)
       // ------------------------------------------------------------------------------------
-      this.mouseMove = this.arr[this.arr.length - 1] - this.arr[0]; // to check the direction of grabbing
+      this.mouseMove = this.arr[this.arr.length - 1] - this.arr[0] // to check the direction of grabbing
       if (this.mouseMove > 0 && this.transformData !== 0) {
-        this.transformData -= 10;
-        this.transformVal = `translateX(${this.direction}px)`;
+        this.transformData -= 10
+        this.transformVal = `translateX(${this.direction}px)`
       } else if (this.mouseMove < 0) {
-        this.transformData += 10;
-        this.transformVal = `translateX(${this.direction}px)`;
+        this.transformData += 10
+        this.transformVal = `translateX(${this.direction}px)`
       }
-      console.log(this.mouseMove);
-      console.log(this.transformData);
+      console.log(this.mouseMove)
+      console.log(this.transformData)
     },
-    grabCursor(e) {
-      const container = document.querySelector(".pv_container");
+    grabCursor (e) {
+      const container = document.querySelector('.pv_container')
       if (this.grab) {
-        this.grabbing = !this.grabbing;
-        console.log(this.grabbing);
-        container.style.cursor = "grabbing";
-        container.style.userSelect = "none";
-        this.grabMove.int = e.clientX;
-        container.addEventListener("mousemove", this.grabMove);
+        this.grabbing = !this.grabbing
+        console.log(this.grabbing)
+        container.style.cursor = 'grabbing'
+        container.style.userSelect = 'none'
+        this.grabMove.int = e.clientX
+        container.addEventListener('mousemove', this.grabMove)
       }
     },
-    releasCursor(e) {
-      const container = document.querySelector(".pv_container");
+    releasCursor (e) {
+      const container = document.querySelector('.pv_container')
       if (this.grab) {
-        this.grabbing = !this.grabbing;
-        console.log(this.grabbing);
-        container.style.cursor = "grab";
-        container.style.removeProperty("user-select");
-        this.grabMove.end = e.clientX;
-        container.removeEventListener("mousemove", this.grabMove);
-        this.arr.splice(0, this.arr.length);
-        this.mouseMove = 0;
+        this.grabbing = !this.grabbing
+        console.log(this.grabbing)
+        container.style.cursor = 'grab'
+        container.style.removeProperty('user-select')
+        this.grabMove.end = e.clientX
+        container.removeEventListener('mousemove', this.grabMove)
+        this.arr.splice(0, this.arr.length)
+        this.mouseMove = 0
       }
     },
-    dotFunc(num) {
-      this.dot = num;
+    dotFunc (num) {
+      this.dot = num
       if (num == this.pages) {
-        this.initIndex = this.lastIndex + 1;
+        this.initIndex = this.lastIndex + 1
         this.transformData =
-          (this.card_width + this.gap) * (this.lastIndex - 1) + this.extra;
-        this.transformVal = `translateX(${this.direction}px)`;
-        return;
+          (this.card_width + this.gap) * (this.lastIndex - 1) + this.extra
+        this.transformVal = `translateX(${this.direction}px)`
+        return
       }
-      this.initIndex = (num - 1) * Math.floor(this.slidesToShow) + 1;
-      this.transformData = (this.card_width + this.gap) * (this.initIndex - 1);
-      this.transformVal = `translateX(${this.direction}px)`;
-    },
+      this.initIndex = (num - 1) * Math.floor(this.slidesToShow) + 1
+      this.transformData = (this.card_width + this.gap) * (this.initIndex - 1)
+      this.transformVal = `translateX(${this.direction}px)`
+    }
   },
   computed: {
-    slidePage() {
+    slidePage () {
       // think of it as dots in carousel
       return (
         this.overalLenght / (this.slidesToShow * (this.card_width - this.gap))
-      );
+      )
     },
-    slidesToShow() {
+    slidesToShow () {
       // how many slides can be seen in a viewport
-      return this.container_width / (this.card_width + this.gap);
+      return this.container_width / (this.card_width + this.gap)
     },
-    extra() {
-      return (1 - (this.slidesToShow % 1)) * (this.card_width - this.gap);
+    extra () {
+      return (1 - (this.slidesToShow % 1)) * (this.card_width - this.gap)
     },
-    lastIndex() {
-      return this.cardCount - Math.floor(this.slidesToShow);
+    lastIndex () {
+      return this.cardCount - Math.floor(this.slidesToShow)
     },
-    direction() {
+    direction () {
       if (this.transformData < 0) {
-        this.transformData = 0;
+        this.transformData = 0
       }
       if (this.rtl) {
-        return this.transformData;
+        return this.transformData
       } else {
-        return this.transformData * -1;
+        return this.transformData * -1
       }
-    },
+    }
   },
   watch: {
-    mouseMove(newval, oldval) {
+    mouseMove (newval, oldval) {
       if (newval < 0) {
         console.log(
-          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-        );
+          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        )
       }
     },
-  },
-};
+    slidePage (to, from) {
+      this.pages = Math.ceil(to)
+    }
+  }
+}
 </script>
 <style>
 .pv_caro * {
