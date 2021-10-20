@@ -26,6 +26,10 @@
 
 //! -------------------------------------------------------------------- there is an issue with gaps larger than card's width
 
+// ? ToDo Loop function
+
+// ? ToDo grab function
+
 export default {
   name: 'PvCarrousel',
   data () {
@@ -198,7 +202,12 @@ export default {
       if (this.mouseMove > 0 && this.transformation_value !== 0) {
         this.transformation_value -= 10
         this.transform_data = `translateX(${this.direction}px)`
-      } else if (this.mouseMove < 0) {
+      } else if (
+        this.mouseMove < 0 &&
+        this.transformation_value <=
+          (this.width_of_card + this.gap) * (this.lastIndex - 1) +
+            this.extra_width
+      ) {
         this.transformation_value += 10
         this.transform_data = `translateX(${this.direction}px)`
       }
