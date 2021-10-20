@@ -23,6 +23,9 @@
 //     timerId = setTimeout(() => func(...args), delay);
 //   };
 // };
+
+//! -------------------------------------------------------------------- there is an issue with gaps larger than card's width
+
 export default {
   name: 'PvCarrousel',
   data () {
@@ -77,31 +80,38 @@ export default {
       this.width_of_cards_container = this.$refs.pv_container.clientWidth
       this.width_of_viewport_container = this.$refs.pv_caro.clientWidth
       this.number_of_all_cards = document.querySelectorAll('.pv_card').length
-      this.pages = Math.ceil(this.number_of_chunks)
+      this.pages = Math.trunc(this.number_of_chunks)
+      console.log(Math.trunc(this.number_of_chunks))
     }
   },
   computed: {
+    number_of_cards_in_chunk () {
+      // how many cards can be seen in a viewport
+      const initial_value =
+        this.width_of_viewport_container / (this.width_of_card + this.gap)
+      const total_width_of_cards =
+        this.width_of_viewport_container - Math.floor(initial_value) * this.gap
+      return total_width_of_cards / this.width_of_card
+    },
     number_of_chunks () {
       // think of it as dots in carousel
       return (
-        this.width_of_cards_container / ((this.number_of_cards_in_chunk * this.width_of_card)+(((this.number_of_cards_in_chunk - 1) * this.gap)))
+        this.width_of_cards_container /
+        (this.number_of_cards_in_chunk * this.width_of_card +
+          (this.number_of_cards_in_chunk - 1) * this.gap)
       )
     },
-    number_of_cards_in_chunk () {
-      // how many cards can be seen in a viewport
-      const initial_value = this.width_of_viewport_container / (this.width_of_card + this.gap)
-      const total_width_of_cards = this.width_of_viewport_container - (Math.floor(initial_value) * this.gap)
-      return (total_width_of_cards / this.width_of_card)
-    },
-    // number_of_cards_in_chunk () {
-    //   // how many cards can be seen in a viewport
-    //   return this.width_of_viewport_container / (this.width_of_card + this.gap)
-    // },
     extra_width () {
-      return ((1 - (this.number_of_cards_in_chunk % 1)) * 1)
+      const extra =
+        (1 - (this.number_of_cards_in_chunk % 1)) * this.width_of_card
+      return extra == this.width_of_card ? extra + this.gap : extra
+
+      // return ((this.width_of_cards_container/this.width_of_viewport_container) % 1) * this.width_of_viewport_container
     },
     lastIndex () {
-      return this.number_of_all_cards - Math.floor(this.number_of_cards_in_chunk)
+      return (
+        this.number_of_all_cards - Math.floor(this.number_of_cards_in_chunk)
+      )
     },
     direction () {
       if (this.transformation_value < 0) {
@@ -132,7 +142,7 @@ export default {
         return
       }
       if (!this.loop && this.initIndex == this.lastIndex) {
-        // when there is a little of last card left (adding an extra_width push)!
+        // when there is a little of last card lefts, (adding an extra_width push)!
         ++this.initIndex
         this.transformation_value += this.extra_width
         this.transform_data = `translateX(${this.direction}px)`
@@ -157,10 +167,14 @@ export default {
         return
       }
 
-      if ((this.rewind && this.transformation_value <= 0) || this.initIndex == 1) {
+      if (
+        (this.rewind && this.transformation_value <= 0) ||
+        this.initIndex == 1
+      ) {
         this.initIndex = this.lastIndex + 1
         this.transformation_value =
-          (this.lastIndex - 1) * (this.width_of_card + this.gap) + this.extra_width
+          (this.lastIndex - 1) * (this.width_of_card + this.gap) +
+          this.extra_width
         this.transform_data = `translateX(${this.direction}px)`
         return
       }
@@ -220,25 +234,26 @@ export default {
       if (num == this.pages) {
         this.initIndex = this.lastIndex + 1
         this.transformation_value =
-          (this.width_of_card + this.gap) * (this.lastIndex - 1) + this.extra_width
+          (this.width_of_card + this.gap) * (this.lastIndex - 1) +
+          this.extra_width
         this.transform_data = `translateX(${this.direction}px)`
         return
       }
-      this.initIndex = (num - 1) * Math.floor(this.number_of_cards_in_chunk) + 1
-      this.transformation_value = (this.width_of_card + this.gap) * (this.initIndex - 1)
+      this.initIndex =
+        (num - 1) * Math.floor(this.number_of_cards_in_chunk) + 1
+      this.transformation_value =
+        (this.width_of_card + this.gap) * (this.initIndex - 1)
       this.transform_data = `translateX(${this.direction}px)`
     }
   },
   watch: {
     mouseMove (newval, oldval) {
       if (newval < 0) {
-        console.log(
-          'moue moved!'
-        )
+        console.log('moue moved!')
       }
     },
     number_of_chunks (to, from) {
-      this.pages = Math.ceil(to)
+      this.pages = Math.trunc(to)
     }
   }
 }
