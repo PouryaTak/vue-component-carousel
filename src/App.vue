@@ -10,7 +10,7 @@
     >
       <div style="margin: 0 10px">
         <label for="grab">Grab</label>
-        <input type="checkbox" name="grab" id="grab" @change="grab = !grab" />
+        <input type="checkbox" name="grab" id="grab" @change="grab = !grab" :checked="grab"/>
       </div>
       <div style="margin: 0 10px">
         <label for="rewind">Rewind</label>
@@ -18,20 +18,20 @@
           type="checkbox"
           name="rewind"
           id="rewind"
-          @change="rewind = !rewind"
+          @change="rewind = !rewind" :checked="rewind"
         />
       </div>
       <div style="margin: 0 10px">
         <label for="rtl">RTL</label>
-        <input type="checkbox" name="rtl" id="rtl" @change="rtl = !rtl" />
+        <input type="checkbox" name="rtl" id="rtl" @change="rtl = !rtl" :checked="rtl"/>
       </div>
       <div style="margin: 0 10px">
         <label for="loop">Loop</label>
-        <input type="checkbox" name="loop" id="loop" @change="loop = !loop" />
+        <input type="checkbox" name="loop" id="loop" @change="loop = !loop" :checked="loop" />
       </div>
       <div style="margin: 0 10px">
         <label for="chunk">Chunk</label>
-        <input type="checkbox" name="chunk" id="chunk" @change="chunk = !chunk" />
+        <input type="checkbox" name="chunk" id="chunk" @change="chunk = !chunk" :checked="chunk"/>
       </div>
       <div style="margin: 0 10px">
         <label for="gap">Gap</label>
@@ -66,7 +66,7 @@ export default {
       grab: false,
       rewind: false,
       rtl: false,
-      loop: false,
+      loop: true,
       chunk: false,
       gap: 20
     }
