@@ -68,7 +68,7 @@ export default {
       rtl: false,
       loop: false,
       chunk: false,
-      gap: 300
+      gap: 20
     }
   }
 }

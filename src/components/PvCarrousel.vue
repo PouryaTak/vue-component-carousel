@@ -80,8 +80,8 @@ export default {
       this.width_of_cards_container = this.$refs.pv_container.clientWidth
       this.width_of_viewport_container = this.$refs.pv_caro.clientWidth
       this.number_of_all_cards = document.querySelectorAll('.pv_card').length
-      this.pages = Math.trunc(this.number_of_chunks)
-      console.log(Math.trunc(this.number_of_chunks))
+      this.pages = Math.round(this.number_of_chunks)
+      console.log(Math.round(this.number_of_chunks))
     }
   },
   computed: {
@@ -253,7 +253,7 @@ export default {
       }
     },
     number_of_chunks (to, from) {
-      this.pages = Math.trunc(to)
+      this.pages = Math.round(to)
     }
   }
 }
