@@ -48,6 +48,7 @@
       :loop="loop"
       :gap="gap"
       :chunk="chunk"
+      :key="key"
     >
       <div class="pv_card" v-for="i in 10" :key="i">{{ i }}</div>
     </PvCarrousel>
@@ -68,7 +69,13 @@ export default {
       rtl: false,
       loop: true,
       chunk: false,
-      gap: 20
+      gap: 20,
+      key: 0,
+    }
+  },
+  watch:{
+    loop(to, from){
+      ++this.key
     }
   }
 }

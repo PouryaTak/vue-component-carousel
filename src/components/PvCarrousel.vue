@@ -1,7 +1,7 @@
 <template lang="">
     <div :style="rtl ? 'direction:rtl' : ''">
         <div ref="pv_caro" class="pv_caro">
-            <div ref="pv_container" class="pv_container" @mousedown="grabCursor" @mouseup="releasCursor" :style="{ transform: transform_data, gap: gap +'px',transition: `all ${transition_speed}s ease`}" :class="grab ? 'pv_grab' : ''">
+            <div ref="pv_container" class="pv_container" @mousedown="grabCursor" @mouseup="releasCursor" :style="{ transform: transform_data, gap: gap +'px',transition: `transform ${transition_speed}s ${transition_timming_function}`}" :class="grab ? 'pv_grab' : ''">
                 <slot/>
             </div>
         </div>
@@ -49,6 +49,7 @@ export default {
       pages: null,
       dot: 1,
       transition_speed: 0.3,
+      transition_timming_function: "ease",
     };
   },
   props: {
@@ -196,6 +197,16 @@ export default {
         );
         return;
       }
+      if (this.loop && this.initIndex == 1) {
+        this.transition_speed = 0;
+        this.initIndex = this.number_of_all_cards + 1;
+        this.transformation_value =
+          (this.width_of_card + this.gap) * this.number_of_all_cards
+        this.transform_data = `translateX(${this.direction}px)`;
+        setTimeout(() => {
+          this.transition_speed = 0.3;
+        }, 300);
+      }
 
       if (!this.rewind && this.transformation_value <= 0) {
         return;
@@ -213,7 +224,7 @@ export default {
         return;
       }
 
-      if (this.initIndex > this.lastIndex) {
+      if (!this.loop && this.initIndex > this.lastIndex) {
         --this.initIndex;
         this.transformation_value -= this.extra_width;
         this.transform_data = `translateX(${this.direction}px)`;
@@ -312,7 +323,7 @@ export default {
           this.initIndex = 1;
           this.transformation_value = 0;
           this.transform_data = `translateX(${this.direction}px)`;
-        },this.transition_speed*1000);
+        }, this.transition_speed * 1000);
       }
     },
   },
