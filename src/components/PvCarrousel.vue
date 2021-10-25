@@ -31,13 +31,13 @@
 // ? ToDo grab function
 
 export default {
-  name: "PvCarrousel",
+  name: 'PvCarrousel',
   data() {
     return {
       width_of_viewport_container: null,
       width_of_card: null,
       transformation_value: 0,
-      transform_data: "translateX(0px)",
+      transform_data: 'translateX(0px)',
       all_cards: null,
       number_of_all_cards: null,
       cards_container: null,
@@ -49,8 +49,8 @@ export default {
       pages: null,
       dot: 1,
       transition_speed: 0.3,
-      transition_timming_function: "ease",
-    };
+      transition_timming_function: 'ease',
+    }
   },
   props: {
     rewind: {
@@ -84,83 +84,72 @@ export default {
   },
   mounted() {
     if (process.browser) {
-      this.width_of_card = document.querySelector(".pv_card").clientWidth;
-      this.cards_container = this.$refs.pv_container;
-      this.width_of_cards_container = this.cards_container.clientWidth;
-      this.width_of_viewport_container = this.$refs.pv_caro.clientWidth;
-      this.all_cards = document.querySelectorAll(".pv_card");
-      this.number_of_all_cards = this.all_cards.length;
-      this.pages = Math.round(this.number_of_chunks);
+      this.width_of_card = document.querySelector('.pv_card').clientWidth
+      this.cards_container = this.$refs.pv_container
+      this.width_of_cards_container = this.cards_container.clientWidth
+      this.width_of_viewport_container = this.$refs.pv_caro.clientWidth
+      this.all_cards = document.querySelectorAll('.pv_card')
+      this.number_of_all_cards = this.all_cards.length
+      this.pages = Math.round(this.number_of_chunks)
       if (this.loop) {
         this.all_cards.forEach((card) => {
-          this.cards_container.appendChild(card.cloneNode(true));
-        });
+          this.cards_container.appendChild(card.cloneNode(true))
+        })
       }
     }
   },
   computed: {
     number_of_cards_in_chunk() {
       // how many cards can be seen in a viewport
-      const initial_value =
-        this.width_of_viewport_container / (this.width_of_card + this.gap);
-      const total_width_of_cards =
-        this.width_of_viewport_container - Math.floor(initial_value) * this.gap;
-      return total_width_of_cards / this.width_of_card;
+      const initial_value = this.width_of_viewport_container / (this.width_of_card + this.gap)
+      const total_width_of_cards = this.width_of_viewport_container - Math.floor(initial_value) * this.gap
+      return total_width_of_cards / this.width_of_card
     },
     number_of_chunks() {
       // think of it as dots in carousel
-      return (
-        this.width_of_cards_container /
-        (this.number_of_cards_in_chunk * this.width_of_card +
-          (this.number_of_cards_in_chunk - 1) * this.gap)
-      );
+      return this.width_of_cards_container / (this.number_of_cards_in_chunk * this.width_of_card + (this.number_of_cards_in_chunk - 1) * this.gap)
     },
     extra_width() {
-      const extra =
-        (1 - (this.number_of_cards_in_chunk % 1)) * this.width_of_card;
-      return extra == this.width_of_card ? extra + this.gap : extra;
+      const extra = (1 - (this.number_of_cards_in_chunk % 1)) * this.width_of_card
+      return extra == this.width_of_card ? extra + this.gap : extra
 
       // return ((this.width_of_cards_container/this.width_of_viewport_container) % 1) * this.width_of_viewport_container
     },
     lastIndex() {
-      return (
-        this.number_of_all_cards - Math.floor(this.number_of_cards_in_chunk)
-      );
+      return this.number_of_all_cards - Math.floor(this.number_of_cards_in_chunk)
     },
     direction() {
       if (this.transformation_value < 0) {
-        return 0;
+        return 0
       }
       if (this.rtl) {
-        return this.transformation_value;
+        return this.transformation_value
       } else {
-        return this.transformation_value * -1;
+        return this.transformation_value * -1
       }
     },
   },
   methods: {
     moveNxt() {
       if (this.chunk) {
-        this.dotFunc(
-          this.dot == this.pages ? (this.rewind ? 1 : this.pages) : ++this.dot
-        );
-        return;
+        this.dotFunc(this.dot == this.pages ? (this.rewind ? 1 : this.pages) : ++this.dot)
+        return
       }
       if (!this.loop && !this.rewind && this.initIndex > this.lastIndex) {
-        return;
+        return
       }
       if (this.rewind && this.initIndex > this.lastIndex) {
-        this.initIndex = 1;
-        this.transformation_value = 0;
-        this.transform_data = `translateX(${this.direction}px)`;
-        return;
+        this.initIndex = 1
+        this.transformation_value = 0
+        this.transform_data = `translateX(${this.direction}px)`
+        return
       }
       if (!this.loop && this.initIndex == this.lastIndex) {
         // when there is a little of last card lefts, (adding an extra_width push)!
-        ++this.initIndex;
-        this.transformation_value += this.extra_width;
-        this.transform_data = `translateX(${this.direction}px)`;
-        return;
+        ++this.initIndex
+        this.transformation_value += this.extra_width
+        this.transform_data = `translateX(${this.direction}px)`
+        return
       }
 
       // ?------------------------------------- loop --------------------------------------------------
@@ -181,153 +170,140 @@ export default {
         // this.initIndex = 1;
         // this.transformation_value = 0;
         // this.transform_data = `translateX(${this.direction}px)`;
-        return;
+        return
       }
 
       // ?------------------------------------- loop --------------------------------------------------
-      this.transition_speed = 0.3;
-      ++this.initIndex;
-      this.transformation_value += this.width_of_card + this.gap;
-      this.transform_data = `translateX(${this.direction}px)`;
+      this.transition_speed = 0.3
+      ++this.initIndex
+      this.transformation_value += this.width_of_card + this.gap
+      this.transform_data = `translateX(${this.direction}px)`
     },
     movePrv() {
       if (this.chunk) {
-        this.dotFunc(
-          this.dot === 1 ? (this.rewind ? this.pages : 1) : --this.dot
-        );
-        return;
+        this.dotFunc(this.dot === 1 ? (this.rewind ? this.pages : 1) : --this.dot)
+        return
       }
-      if (this.loop && this.initIndex == 1) {
-        this.transition_speed = 0;
-        this.initIndex = this.number_of_all_cards + 1;
-        this.transformation_value =
-          (this.width_of_card + this.gap) * this.number_of_all_cards
-        this.transform_data = `translateX(${this.direction}px)`;
-        setTimeout(() => {
-          this.transition_speed = 0.3;
-        }, 300);
+      if (this.loop && this.initIndex === 1) {
+        this.transition_speed = 0
+        this.initIndex = this.number_of_all_cards + 1
+        this.transformation_value = (this.width_of_card + this.gap) * (this.number_of_all_cards + 1)
+        this.transform_data = `translateX(${this.direction}px)`
       }
 
       if (!this.rewind && this.transformation_value <= 0) {
-        return;
+        return
       }
 
-      if (
-        (this.rewind && this.transformation_value <= 0) ||
-        this.initIndex == 1
-      ) {
-        this.initIndex = this.lastIndex + 1;
-        this.transformation_value =
-          (this.lastIndex - 1) * (this.width_of_card + this.gap) +
-          this.extra_width;
-        this.transform_data = `translateX(${this.direction}px)`;
-        return;
+      if ((this.rewind && this.transformation_value <= 0) || this.initIndex == 1) {
+        this.initIndex = this.lastIndex + 1
+        this.transformation_value = (this.lastIndex - 1) * (this.width_of_card + this.gap) + this.extra_width
+        this.transform_data = `translateX(${this.direction}px)`
+        return
       }
 
       if (!this.loop && this.initIndex > this.lastIndex) {
-        --this.initIndex;
-        this.transformation_value -= this.extra_width;
-        this.transform_data = `translateX(${this.direction}px)`;
-        return;
+        --this.initIndex
+        this.transformation_value -= this.extra_width
+        this.transform_data = `translateX(${this.direction}px)`
+        return
       }
-      --this.initIndex;
-      this.transformation_value -= this.width_of_card + this.gap;
-      this.transform_data = `translateX(${this.direction}px)`;
+      --this.initIndex
+      this.transformation_value -= this.width_of_card + this.gap
+      this.transform_data = `translateX(${this.direction}px)`
     },
     grabMove(e) {
-      this.arr.push(e.clientX);
-      console.log(this.arr[this.arr.length - 1] - this.arr[0]);
+      this.arr.push(e.clientX)
+      console.log(this.arr[this.arr.length - 1] - this.arr[0])
       // console.log(this.arr)
       // ------------------------------------------------------------------------------------
-      this.mouseMove = this.arr[this.arr.length - 1] - this.arr[0]; // to check the direction of grabbing
+      this.mouseMove = this.arr[this.arr.length - 1] - this.arr[0] // to check the direction of grabbing
       if (this.mouseMove > 0 && this.transformation_value !== 0) {
-        this.transformation_value -= 10;
-        this.transform_data = `translateX(${this.direction}px)`;
-      } else if (
-        this.mouseMove < 0 &&
-        this.transformation_value <=
-          (this.width_of_card + this.gap) * (this.lastIndex - 1) +
-            this.extra_width
-      ) {
-        this.transformation_value += 10;
-        this.transform_data = `translateX(${this.direction}px)`;
+        this.transformation_value -= 10
+        this.transform_data = `translateX(${this.direction}px)`
+      } else if (this.mouseMove < 0 && this.transformation_value <= (this.width_of_card + this.gap) * (this.lastIndex - 1) + this.extra_width) {
+        this.transformation_value += 10
+        this.transform_data = `translateX(${this.direction}px)`
       }
-      console.log(this.mouseMove);
-      console.log(this.transformation_value);
+      console.log(this.mouseMove)
+      console.log(this.transformation_value)
     },
     grabCursor(e) {
-      const container = document.querySelector(".pv_container");
+      const container = document.querySelector('.pv_container')
       if (this.grab) {
-        this.grabbing = !this.grabbing;
-        console.log(this.grabbing);
-        container.style.cursor = "grabbing";
-        container.style.userSelect = "none";
-        this.grabMove.int = e.clientX;
-        container.addEventListener("mousemove", this.grabMove);
+        this.grabbing = !this.grabbing
+        console.log(this.grabbing)
+        container.style.cursor = 'grabbing'
+        container.style.userSelect = 'none'
+        this.grabMove.int = e.clientX
+        container.addEventListener('mousemove', this.grabMove)
       }
     },
     releasCursor(e) {
-      const container = document.querySelector(".pv_container");
+      const container = document.querySelector('.pv_container')
       if (this.grab) {
-        this.grabbing = !this.grabbing;
-        console.log(this.grabbing);
-        container.style.cursor = "grab";
-        container.style.removeProperty("user-select");
-        this.grabMove.end = e.clientX;
-        container.removeEventListener("mousemove", this.grabMove);
-        this.arr.splice(0, this.arr.length);
-        this.mouseMove = 0;
+        this.grabbing = !this.grabbing
+        console.log(this.grabbing)
+        container.style.cursor = 'grab'
+        container.style.removeProperty('user-select')
+        this.grabMove.end = e.clientX
+        container.removeEventListener('mousemove', this.grabMove)
+        this.arr.splice(0, this.arr.length)
+        this.mouseMove = 0
       }
     },
     dotFunc(num) {
-      this.dot = num;
+      this.dot = num
       if (num == this.pages) {
-        this.initIndex = this.lastIndex + 1;
-        this.transformation_value =
-          (this.width_of_card + this.gap) * (this.lastIndex - 1) +
-          this.extra_width;
-        this.transform_data = `translateX(${this.direction}px)`;
-        return;
+        this.initIndex = this.lastIndex + 1
+        this.transformation_value = (this.width_of_card + this.gap) * (this.lastIndex - 1) + this.extra_width
+        this.transform_data = `translateX(${this.direction}px)`
+        return
       }
-      this.initIndex =
-        (num - 1) * Math.floor(this.number_of_cards_in_chunk) + 1;
-      this.transformation_value =
-        (this.width_of_card + this.gap) * (this.initIndex - 1);
-      this.transform_data = `translateX(${this.direction}px)`;
+      this.initIndex = (num - 1) * Math.floor(this.number_of_cards_in_chunk) + 1
+      this.transformation_value = (this.width_of_card + this.gap) * (this.initIndex - 1)
+      this.transform_data = `translateX(${this.direction}px)`
     },
   },
   watch: {
     mouseMove(newval, oldval) {
       if (newval < 0) {
-        console.log("moue moved!");
+        console.log('moue moved!')
       }
     },
     number_of_chunks(to, from) {
-      this.pages = Math.round(to);
+      this.pages = Math.round(to)
     },
     initIndex(to, from) {
-      if (to == this.number_of_all_cards + 1) {
+      if (from !== 1 && to == this.number_of_all_cards + 1) {
         setTimeout(() => {
-          const cards = document.querySelectorAll(".pv_card");
-          console.log(cards);
+          const cards = document.querySelectorAll('.pv_card')
+          console.log(cards)
           for (let i = 0; i < this.number_of_all_cards * 2; i++) {
-            cards[i].remove();
+            cards[i].remove()
           }
           this.all_cards.forEach((card) => {
-            this.cards_container.appendChild(card.cloneNode(true));
-          });
-          document.querySelectorAll(".pv_card").forEach((card) => {
-            this.cards_container.appendChild(card.cloneNode(true));
-          });
-          this.transition_speed = 0;
-          this.initIndex = 1;
-          this.transformation_value = 0;
-          this.transform_data = `translateX(${this.direction}px)`;
-        }, this.transition_speed * 1000);
+            this.cards_container.appendChild(card.cloneNode(true))
+          })
+          document.querySelectorAll('.pv_card').forEach((card) => {
+            this.cards_container.appendChild(card.cloneNode(true))
+          })
+          this.transition_speed = 0
+          this.initIndex = 1
+          this.transformation_value = 0
+          this.transform_data = `translateX(${this.direction}px)`
+        }, this.transition_speed * 1000)
+      }
+      if (from == 1 && to == this.number_of_all_cards) {
+        setTimeout(() => {
+          this.transition_speed = 0.3
+          this.transformation_value -= this.width_of_card + this.gap
+          this.transform_data = `translateX(${this.direction}px)`
+        }, 5)
       }
     },
   },
-};
+}
 </script>
 <style>
 .pv_caro {

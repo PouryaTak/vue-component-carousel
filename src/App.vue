@@ -10,7 +10,13 @@
     >
       <div style="margin: 0 10px">
         <label for="grab">Grab</label>
-        <input type="checkbox" name="grab" id="grab" @change="grab = !grab" :checked="grab"/>
+        <input
+          type="checkbox"
+          name="grab"
+          id="grab"
+          @change="grab = !grab"
+          :checked="grab"
+        />
       </div>
       <div style="margin: 0 10px">
         <label for="rewind">Rewind</label>
@@ -18,24 +24,49 @@
           type="checkbox"
           name="rewind"
           id="rewind"
-          @change="rewind = !rewind" :checked="rewind"
+          @change="rewind = !rewind"
+          :checked="rewind"
         />
       </div>
       <div style="margin: 0 10px">
         <label for="rtl">RTL</label>
-        <input type="checkbox" name="rtl" id="rtl" @change="rtl = !rtl" :checked="rtl"/>
+        <input
+          type="checkbox"
+          name="rtl"
+          id="rtl"
+          @change="rtl = !rtl"
+          :checked="rtl"
+        />
       </div>
       <div style="margin: 0 10px">
         <label for="loop">Loop</label>
-        <input type="checkbox" name="loop" id="loop" @change="loop = !loop" :checked="loop" />
+        <input
+          type="checkbox"
+          name="loop"
+          id="loop"
+          @change="loop = !loop"
+          :checked="loop"
+        />
       </div>
       <div style="margin: 0 10px">
         <label for="chunk">Chunk</label>
-        <input type="checkbox" name="chunk" id="chunk" @change="chunk = !chunk" :checked="chunk"/>
+        <input
+          type="checkbox"
+          name="chunk"
+          id="chunk"
+          @change="chunk = !chunk"
+          :checked="chunk"
+        />
       </div>
       <div style="margin: 0 10px">
         <label for="gap">Gap</label>
-        <input type="number" name="gap" id="gap" v-model.number="gap" style="width: 50px; margin:0 5px;" />
+        <input
+          type="number"
+          name="gap"
+          id="gap"
+          v-model.number="gap"
+          style="width: 50px; margin: 0 5px"
+        />
       </div>
     </div>
     <button @click="$refs.pvcarousel.movePrv()">Prev</button>
@@ -50,19 +81,19 @@
       :chunk="chunk"
       :key="key"
     >
-      <div class="pv_card" v-for="i in 10" :key="i">{{ i }}</div>
+      <div class="pv_card" v-for="i in 10" :key="i" :style="`filter:hue-rotate(${i * 20}deg)`">{{ i }}</div>
     </PvCarrousel>
   </div>
 </template>
 
 <script>
-import PvCarrousel from '@/components/PvCarrousel.vue'
+import PvCarrousel from "@/components/PvCarrousel.vue";
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    PvCarrousel
+    PvCarrousel,
   },
-  data () {
+  data() {
     return {
       grab: false,
       rewind: false,
@@ -71,14 +102,14 @@ export default {
       chunk: false,
       gap: 20,
       key: 0,
-    }
+    };
   },
-  watch:{
-    loop(to, from){
-      ++this.key
-    }
-  }
-}
+  watch: {
+    loop(to, from) {
+      ++this.key;
+    },
+  },
+};
 </script>
 
 <style lang="scss">
@@ -96,8 +127,9 @@ body {
   width: 300px;
   height: 150px;
   border-radius: 15px;
-  background: #999999;
+  background: #ff7474;
   display: grid;
   place-items: center;
+ 
 }
 </style>
