@@ -154,22 +154,10 @@ export default {
 
       // ?------------------------------------- loop --------------------------------------------------
 
-      if (this.loop && this.initIndex == this.number_of_all_cards + 1) {
-        // const cards = document.querySelectorAll(".pv_card");
-        // console.log(cards);
-        // for (let i = 0; i < this.number_of_all_cards * 2; i++) {
-        //   cards[i].remove();
-        // }
-        // this.all_cards.forEach((card) => {
-        //   this.cards_container.appendChild(card.cloneNode(true));
-        // });
-        // document.querySelectorAll(".pv_card").forEach((card) => {
-        //   this.cards_container.appendChild(card.cloneNode(true));
-        // });
-        // this.transition_speed = 0;
-        // this.initIndex = 1;
-        // this.transformation_value = 0;
-        // this.transform_data = `translateX(${this.direction}px)`;
+      if (this.loop && this.initIndex == this.number_of_all_cards) {
+        ++this.initIndex
+        this.transformation_value += this.width_of_card + this.gap
+        this.transform_data = `translateX(${this.direction}px)`
         return
       }
 
@@ -277,22 +265,12 @@ export default {
     initIndex(to, from) {
       if (from !== 1 && to == this.number_of_all_cards + 1) {
         setTimeout(() => {
-          const cards = document.querySelectorAll('.pv_card')
-          console.log(cards)
-          for (let i = 0; i < this.number_of_all_cards * 2; i++) {
-            cards[i].remove()
-          }
-          this.all_cards.forEach((card) => {
-            this.cards_container.appendChild(card.cloneNode(true))
-          })
-          document.querySelectorAll('.pv_card').forEach((card) => {
-            this.cards_container.appendChild(card.cloneNode(true))
-          })
           this.transition_speed = 0
           this.initIndex = 1
           this.transformation_value = 0
           this.transform_data = `translateX(${this.direction}px)`
-        }, this.transition_speed * 1000)
+          // this.transition_speed = 0.3
+        }, 300)
       }
       if (from == 1 && to == this.number_of_all_cards) {
         setTimeout(() => {
