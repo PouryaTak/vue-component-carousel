@@ -1,6 +1,6 @@
 <template lang="">
     <div :style="rtl ? 'direction:rtl' : ''">
-        <div ref="pv_caro" class="pv_caro" :class="{pv_caro_vertical: vertical}">
+        <div ref="pv_caro" class="pv_caro" :class="{pv_caro_vertical: vertical}" :style="preventTouchScorll ? 'overflow:hidden':''">
             <div ref="pv_container" class="pv_container" @mousedown="grabCursor" @mouseup="releasCursor" :style="{ transform: transform_data, gap: gap +'px',transition: `transform ${transition_speed}s ${transition_timming_function}`}" :class="{pv_grab:grab, pv_container_vertical:vertical }">
                 <slot/>
             </div>
@@ -88,6 +88,10 @@ export default {
     startFrom: {
       type: Number,
       default: 1
+    },
+    preventTouchScorll: {
+      type: Boolean,
+      default: true,
     }
   },
   mounted () {
@@ -142,7 +146,7 @@ export default {
   methods: {
     moveNxt () {
       if (this.chunk) {
-        this.dotFunc(this.dot == this.pages ? (this.rewind ? 1 : this.pages) : ++this.dot)
+        this.dotFunc(this.dot == this.pages ? (this.rewind  ? 1 : this.pages) : ++this.dot)
         return
       }
       if (!this.loop && !this.rewind && this.initIndex > this.lastIndex) {
