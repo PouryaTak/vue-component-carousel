@@ -87,4 +87,7 @@ body {
   display: grid;
   place-items: center;
 }
+.pv_highlight {
+  border: 4px solid rgb(58, 58, 58);
+}
 </style>
