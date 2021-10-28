@@ -48,6 +48,7 @@ export default {
       mouseMove: 0,
       pages: null,
       dot: 1,
+      allDuplicatedCards: null,
       transition_speed: 0.3,
       transition_timming_function: 'ease',
     }
@@ -116,8 +117,9 @@ export default {
           this.cards_container.appendChild(card.cloneNode(true))
         })
       }
-      if (this.highLightItem) {
-        this.all_cards[this.highLightItem - 1 + (this.initIndex - 1)].classList.add(this.hitglightClass)
+      if (this.highLightItem && this.loop) {
+        this.allDuplicatedCards = document.querySelectorAll('.pv_card')
+        this.allDuplicatedCards[this.highLightItem - 1 + (this.initIndex - 1)].classList.add(this.hitglightClass)
       }
     }
     this.transformation_value += (this.width_of_card + this.gap) * (this.startFrom - 1)
@@ -304,9 +306,9 @@ export default {
           this.transform_data = `translateX(${this.direction}px)`
         }, 5)
       }
-      if (this.highLightItem) {
-        this.all_cards[this.highLightItem - 1 + (this.initIndex - 1)].classList.add(this.hitglightClass)
-        this.all_cards[this.highLightItem - 1 + (from - 1)].classList.remove(this.hitglightClass)
+      if (this.highLightItem && this.loop) {
+        this.allDuplicatedCards[this.highLightItem - 1 + (this.initIndex - 1)].classList.add(this.hitglightClass)
+        this.allDuplicatedCards[this.highLightItem - 1 + (from - 1)].classList.remove(this.hitglightClass)
       }
     },
   },

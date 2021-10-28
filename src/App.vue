@@ -88,6 +88,6 @@ body {
   place-items: center;
 }
 .pv_highlight {
-  border: 4px solid rgb(58, 58, 58);
+  box-shadow: 0 0 0px 10px rgb(192, 192, 192);
 }
 </style>
