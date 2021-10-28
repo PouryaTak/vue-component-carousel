@@ -1,95 +1,49 @@
 <template>
   <div id="app">
-    <div
-      style="
-        display: flex;
-        margin-bottom: 20px;
-        justify-content: center;
-        background: #eee;
-      "
-    >
+    <div style="display: flex; margin-bottom: 20px; justify-content: center; background: #eee">
       <div style="margin: 0 10px">
         <label for="grab">Grab</label>
-        <input
-          type="checkbox"
-          name="grab"
-          id="grab"
-          @change="grab = !grab"
-          :checked="grab"
-        />
+        <input type="checkbox" name="grab" id="grab" @change="grab = !grab" :checked="grab" />
       </div>
       <div style="margin: 0 10px">
         <label for="rewind">Rewind</label>
-        <input
-          type="checkbox"
-          name="rewind"
-          id="rewind"
-          @change="rewind = !rewind"
-          :checked="rewind"
-        />
+        <input type="checkbox" name="rewind" id="rewind" @change="rewind = !rewind" :checked="rewind" />
       </div>
       <div style="margin: 0 10px">
         <label for="rtl">RTL</label>
-        <input
-          type="checkbox"
-          name="rtl"
-          id="rtl"
-          @change="rtl = !rtl"
-          :checked="rtl"
-        />
+        <input type="checkbox" name="rtl" id="rtl" @change="rtl = !rtl" :checked="rtl" />
       </div>
       <div style="margin: 0 10px">
         <label for="loop">Loop</label>
-        <input
-          type="checkbox"
-          name="loop"
-          id="loop"
-          @change="loop = !loop"
-          :checked="loop"
-        />
+        <input type="checkbox" name="loop" id="loop" @change="loop = !loop" :checked="loop" />
       </div>
       <div style="margin: 0 10px">
         <label for="chunk">Chunk</label>
-        <input
-          type="checkbox"
-          name="chunk"
-          id="chunk"
-          @change="chunk = !chunk"
-          :checked="chunk"
-        />
+        <input type="checkbox" name="chunk" id="chunk" @change="chunk = !chunk" :checked="chunk" />
+      </div>
+      <div style="margin: 0 10px">
+        <label for="chunk">Vertical</label>
+        <input type="checkbox" name="vertical" id="vertical" @change="vertical = !vertical" :checked="vertical" />
       </div>
       <div style="margin: 0 10px">
         <label for="gap">Gap</label>
-        <input
-          type="number"
-          name="gap"
-          id="gap"
-          v-model.number="gap"
-          style="width: 50px; margin: 0 5px"
-        />
+        <input type="number" name="gap" id="gap" v-model.number="gap" style="width: 50px; margin: 0 5px" />
       </div>
     </div>
     <button @click="$refs.pvcarousel.movePrv()">Prev</button>
     <button @click="$refs.pvcarousel.moveNxt()">next</button>
-    <PvCarrousel
-      ref="pvcarousel"
-      :grab="grab"
-      :rewind="rewind"
-      :rtl="rtl"
-      :loop="loop"
-      :gap="gap"
-      :chunk="chunk"
-      :key="key"
-    >
-      <div class="pv_card" v-for="i in 10" :key="i" :style="`filter:hue-rotate(${i * 20}deg)`">{{ i }}</div>
-    </PvCarrousel>
+    <div style="height:600px;">
+      <PvCarrousel ref="pvcarousel" :grab="grab" :rewind="rewind" :rtl="rtl" :loop="loop" :gap="gap" :chunk="chunk" :key="key" :vertical="vertical">
+        <div class="pv_card" v-for="i in 10" :key="i" :style="`filter:hue-rotate(${i * 20}deg)`">{{ i }}</div>
+      </PvCarrousel>
+    </div>
   </div>
 </template>
 
 <script>
-import PvCarrousel from "@/components/PvCarrousel.vue";
+import PvCarrousel from '@/components/PvCarrousel.vue'
 export default {
-  name: "App",
+  name: 'App',
   components: {
     PvCarrousel,
   },
@@ -102,14 +56,15 @@ export default {
       chunk: false,
       gap: 20,
       key: 0,
-    };
+      vertical: false,
+    }
   },
   watch: {
     loop(to, from) {
-      ++this.key;
+      ++this.key
     },
   },
-};
+}
 </script>
 
 <style lang="scss">
@@ -119,8 +74,9 @@ body {
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   color: #2c3e50;
-  margin-top: 60px;
+  padding-top: 60px;
   overflow: hidden;
+  max-height: 100vh;
 }
 
 .pv_card {
@@ -130,6 +86,5 @@ body {
   background: #ff7474;
   display: grid;
   place-items: center;
- 
 }
 </style>
