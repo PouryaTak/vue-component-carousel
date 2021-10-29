@@ -32,7 +32,7 @@
 
 export default {
   name: 'PvCarrousel',
-  data() {
+  data () {
     return {
       width_of_viewport_container: null,
       width_of_card: null,
@@ -51,59 +51,61 @@ export default {
       allDuplicatedCards: null,
       transition_speed: 0.3,
       transition_timming_function: 'ease',
+      offset: 0
     }
   },
   props: {
     rewind: {
       type: Boolean,
-      default: false,
+      default: false
     },
     rtl: {
       type: Boolean,
-      default: false,
+      default: false
     },
     grab: {
       type: Boolean,
-      default: false,
+      default: false
     },
     loop: {
       type: Boolean,
-      default: false,
+      default: false
     },
     gap: {
       type: Number,
-      default: 10,
+      default: 10
     },
     dots: {
       type: Boolean,
-      default: true,
+      default: true
     },
     chunk: {
       type: Boolean,
-      default: false,
+      default: false
     },
     vertical: {
       type: Boolean,
-      default: false,
+      default: false
     },
     startFrom: {
       type: Number,
-      default: 1,
+      default: 1
     },
     preventTouchScorll: {
       type: Boolean,
-      default: true,
+      default: true
     },
     highLightItem: {
       type: Number,
-      default: 2,
+      default: 2
     },
     hitglightClass: {
       type: String,
-      default: 'pv_highlight',
-    },
+      default: 'pv_highlight'
+    }
   },
-  mounted() {
+  mounted () {
+    this.transformation_value = this.offset
     if (process.browser) {
       this.width_of_card = document.querySelector('.pv_card').clientWidth
       this.cards_container = this.$refs.pv_container
@@ -126,38 +128,38 @@ export default {
     this.transform_data = `translateX(${this.direction}px)`
   },
   computed: {
-    number_of_cards_in_chunk() {
+    number_of_cards_in_chunk () {
       // how many cards can be seen in a viewport
       const initial_value = this.width_of_viewport_container / (this.width_of_card + this.gap)
       const total_width_of_cards = this.width_of_viewport_container - Math.floor(initial_value) * this.gap
       return total_width_of_cards / this.width_of_card
     },
-    number_of_chunks() {
+    number_of_chunks () {
       // think of it as dots in carousel
       return this.width_of_cards_container / (this.number_of_cards_in_chunk * this.width_of_card + (this.number_of_cards_in_chunk - 1) * this.gap)
     },
-    extra_width() {
+    extra_width () {
       const extra = (1 - (this.number_of_cards_in_chunk % 1)) * this.width_of_card
       return extra == this.width_of_card ? extra + this.gap : extra
 
       // return ((this.width_of_cards_container/this.width_of_viewport_container) % 1) * this.width_of_viewport_container
     },
-    lastIndex() {
+    lastIndex () {
       return this.number_of_all_cards - Math.floor(this.number_of_cards_in_chunk)
     },
-    direction() {
-      if (this.transformation_value < 0) {
-        return 0
+    direction () {
+      if (this.transformation_value < this.offset) {
+        return this.offset
       }
       if (this.rtl) {
         return this.transformation_value
       } else {
         return this.transformation_value * -1
       }
-    },
+    }
   },
   methods: {
-    moveNxt() {
+    moveNxt () {
       if (this.chunk) {
         this.dotFunc(this.dot == this.pages ? (this.rewind ? 1 : this.pages) : ++this.dot)
         return
@@ -167,7 +169,7 @@ export default {
       }
       if (this.rewind && this.initIndex > this.lastIndex) {
         this.initIndex = 1
-        this.transformation_value = 0
+        this.transformation_value = this.offset
         this.transform_data = `translateX(${this.direction}px)`
         return
       }
@@ -194,7 +196,7 @@ export default {
       this.transformation_value += this.width_of_card + this.gap
       this.transform_data = `translateX(${this.direction}px)`
     },
-    movePrv() {
+    movePrv () {
       if (this.chunk) {
         this.dotFunc(this.dot === 1 ? (this.rewind ? this.pages : 1) : --this.dot)
         return
@@ -206,11 +208,11 @@ export default {
         this.transform_data = `translateX(${this.direction}px)`
       }
 
-      if (!this.rewind && this.transformation_value <= 0) {
+      if (!this.rewind && this.transformation_value <= this.offset) {
         return
       }
 
-      if ((this.rewind && this.transformation_value <= 0) || this.initIndex == 1) {
+      if ((this.rewind && this.transformation_value <= this.offset) || this.initIndex == 1) {
         this.initIndex = this.lastIndex + 1
         this.transformation_value = (this.lastIndex - 1) * (this.width_of_card + this.gap) + this.extra_width
         this.transform_data = `translateX(${this.direction}px)`
@@ -227,13 +229,13 @@ export default {
       this.transformation_value -= this.width_of_card + this.gap
       this.transform_data = `translateX(${this.direction}px)`
     },
-    grabMove(e) {
+    grabMove (e) {
       this.arr.push(e.clientX)
       console.log(this.arr[this.arr.length - 1] - this.arr[0])
       // console.log(this.arr)
       // ------------------------------------------------------------------------------------
       this.mouseMove = this.arr[this.arr.length - 1] - this.arr[0] // to check the direction of grabbing
-      if (this.mouseMove > 0 && this.transformation_value !== 0) {
+      if (this.mouseMove > 0 && this.transformation_value !== this.offset) {
         this.transformation_value -= 10
         this.transform_data = `translateX(${this.direction}px)`
       } else if (this.mouseMove < 0 && this.transformation_value <= (this.width_of_card + this.gap) * (this.lastIndex - 1) + this.extra_width) {
@@ -243,7 +245,7 @@ export default {
       console.log(this.mouseMove)
       console.log(this.transformation_value)
     },
-    grabCursor(e) {
+    grabCursor (e) {
       const container = document.querySelector('.pv_container')
       if (this.grab) {
         this.grabbing = !this.grabbing
@@ -254,7 +256,7 @@ export default {
         container.addEventListener('mousemove', this.grabMove)
       }
     },
-    releasCursor(e) {
+    releasCursor (e) {
       const container = document.querySelector('.pv_container')
       if (this.grab) {
         this.grabbing = !this.grabbing
@@ -267,7 +269,7 @@ export default {
         this.mouseMove = 0
       }
     },
-    dotFunc(num) {
+    dotFunc (num) {
       this.dot = num
       if (num == this.pages) {
         this.initIndex = this.lastIndex + 1
@@ -278,23 +280,23 @@ export default {
       this.initIndex = (num - 1) * Math.floor(this.number_of_cards_in_chunk) + 1
       this.transformation_value = (this.width_of_card + this.gap) * (this.initIndex - 1)
       this.transform_data = `translateX(${this.direction}px)`
-    },
+    }
   },
   watch: {
-    mouseMove(newval, oldval) {
+    mouseMove (newval, oldval) {
       if (newval < 0) {
         console.log('moue moved!')
       }
     },
-    number_of_chunks(to, from) {
+    number_of_chunks (to, from) {
       this.pages = Math.round(to)
     },
-    initIndex(to, from) {
+    initIndex (to, from) {
       if (from !== 1 && to == this.number_of_all_cards + 1) {
         setTimeout(() => {
           this.transition_speed = 0
           this.initIndex = 1
-          this.transformation_value = 0
+          this.transformation_value = this.offset
           this.transform_data = `translateX(${this.direction}px)`
           // this.transition_speed = 0.3
         }, 300)
@@ -310,8 +312,8 @@ export default {
         this.allDuplicatedCards[this.highLightItem - 1 + (this.initIndex - 1)].classList.add(this.hitglightClass)
         this.allDuplicatedCards[this.highLightItem - 1 + (from - 1)].classList.remove(this.hitglightClass)
       }
-    },
-  },
+    }
+  }
 }
 </script>
 <style>
