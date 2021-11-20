@@ -125,7 +125,7 @@ export default {
       }
     }
     this.transformation_value += (this.width_of_card + this.gap) * (this.startFrom - 1)
-    this.transform_data = `translateX(${this.direction}px)`
+    this.directAndMove()
   },
   computed: {
     number_of_cards_in_chunk () {
@@ -159,6 +159,22 @@ export default {
     }
   },
   methods: {
+    directAndMove () {
+      let actionDirection
+      if (this.transformation_value < this.offset) {
+        actionDirection = this.offset
+      }
+      else if (this.rtl) {
+        actionDirection = this.transformation_value
+      } else {
+        actionDirection = this.transformation_value * -1
+      }
+      if (this.vertical) {
+        this.transform_data = `translateY(${actionDirection}px)`
+      } else {
+        this.transform_data = `translateX(${actionDirection}px)`
+      }
+    },
     moveNxt () {
       if (this.chunk) {
         this.dotFunc(this.dot == this.pages ? (this.rewind ? 1 : this.pages) : ++this.dot)
@@ -170,14 +186,14 @@ export default {
       if (this.rewind && this.initIndex > this.lastIndex) {
         this.initIndex = 1
         this.transformation_value = this.offset
-        this.transform_data = `translateX(${this.direction}px)`
+        this.directAndMove()
         return
       }
       if (!this.loop && this.initIndex == this.lastIndex) {
         // when there is a little of last card lefts, (adding an extra_width push)!
         ++this.initIndex
         this.transformation_value += this.extra_width
-        this.transform_data = `translateX(${this.direction}px)`
+        this.directAndMove()
         return
       }
 
@@ -186,7 +202,7 @@ export default {
       if (this.loop && this.initIndex == this.number_of_all_cards) {
         ++this.initIndex
         this.transformation_value += this.width_of_card + this.gap
-        this.transform_data = `translateX(${this.direction}px)`
+        this.directAndMove()
         return
       }
 
@@ -194,7 +210,7 @@ export default {
       this.transition_speed = 0.3
       ++this.initIndex
       this.transformation_value += this.width_of_card + this.gap
-      this.transform_data = `translateX(${this.direction}px)`
+      this.directAndMove()
     },
     movePrv () {
       if (this.chunk) {
@@ -205,7 +221,7 @@ export default {
         this.transition_speed = 0
         this.initIndex = this.number_of_all_cards + 1
         this.transformation_value = (this.width_of_card + this.gap) * (this.number_of_all_cards + 1)
-        this.transform_data = `translateX(${this.direction}px)`
+        this.directAndMove()
       }
 
       if (!this.rewind && this.transformation_value <= this.offset) {
@@ -215,33 +231,40 @@ export default {
       if ((this.rewind && this.transformation_value <= this.offset) || this.initIndex == 1) {
         this.initIndex = this.lastIndex + 1
         this.transformation_value = (this.lastIndex - 1) * (this.width_of_card + this.gap) + this.extra_width
-        this.transform_data = `translateX(${this.direction}px)`
+        this.directAndMove()
         return
       }
 
       if (!this.loop && this.initIndex > this.lastIndex) {
         --this.initIndex
         this.transformation_value -= this.extra_width
-        this.transform_data = `translateX(${this.direction}px)`
+        this.directAndMove()
         return
       }
       --this.initIndex
       this.transformation_value -= this.width_of_card + this.gap
-      this.transform_data = `translateX(${this.direction}px)`
+      this.directAndMove()
     },
     grabMove (e) {
-      this.arr.push(e.clientX)
-      console.log(this.arr[this.arr.length - 1] - this.arr[0])
-      // console.log(this.arr)
+      do {
+        this.arr.push(e.clientX)
+      } while (this.arr.length === 20)
       // ------------------------------------------------------------------------------------
       this.mouseMove = this.arr[this.arr.length - 1] - this.arr[0] // to check the direction of grabbing
       if (this.mouseMove > 0 && this.transformation_value !== this.offset) {
-        this.transformation_value -= 10
-        this.transform_data = `translateX(${this.direction}px)`
+        this.movePrv()
       } else if (this.mouseMove < 0 && this.transformation_value <= (this.width_of_card + this.gap) * (this.lastIndex - 1) + this.extra_width) {
-        this.transformation_value += 10
-        this.transform_data = `translateX(${this.direction}px)`
+        this.moveNxt()
+      } else {
+        return
       }
+      // if (this.mouseMove > 0 && this.transformation_value !== this.offset) {
+      //   this.transformation_value -= 10
+      //   this.directAndMove()
+      // } else if (this.mouseMove < 0 && this.transformation_value <= (this.width_of_card + this.gap) * (this.lastIndex - 1) + this.extra_width) {
+      //   this.transformation_value += 10
+      //   this.directAndMove()
+      // }
       console.log(this.mouseMove)
       console.log(this.transformation_value)
     },
@@ -271,15 +294,15 @@ export default {
     },
     dotFunc (num) {
       this.dot = num
-      if (num == this.pages) {
+      if (num === this.pages) {
         this.initIndex = this.lastIndex + 1
         this.transformation_value = (this.width_of_card + this.gap) * (this.lastIndex - 1) + this.extra_width
-        this.transform_data = `translateX(${this.direction}px)`
+        this.directAndMove()
         return
       }
       this.initIndex = (num - 1) * Math.floor(this.number_of_cards_in_chunk) + 1
       this.transformation_value = (this.width_of_card + this.gap) * (this.initIndex - 1)
-      this.transform_data = `translateX(${this.direction}px)`
+      this.directAndMove()
     }
   },
   watch: {
@@ -297,7 +320,7 @@ export default {
           this.transition_speed = 0
           this.initIndex = 1
           this.transformation_value = this.offset
-          this.transform_data = `translateX(${this.direction}px)`
+          this.directAndMove()
           // this.transition_speed = 0.3
         }, 300)
       }
@@ -305,7 +328,7 @@ export default {
         setTimeout(() => {
           this.transition_speed = 0.3
           this.transformation_value -= this.width_of_card + this.gap
-          this.transform_data = `translateX(${this.direction}px)`
+          this.directAndMove()
         }, 5)
       }
       if (this.highLightItem && this.loop) {
