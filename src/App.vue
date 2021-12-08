@@ -45,9 +45,9 @@ import PvCarrousel from '@/components/PvCarrousel.vue'
 export default {
   name: 'App',
   components: {
-    PvCarrousel,
+    PvCarrousel
   },
-  data() {
+  data () {
     return {
       grab: false,
       rewind: false,
@@ -56,14 +56,14 @@ export default {
       chunk: false,
       gap: 20,
       key: 0,
-      vertical: false,
+      vertical: false
     }
   },
   watch: {
-    loop(to, from) {
+    loop (to, from) {
       ++this.key
-    },
-  },
+    }
+  }
 }
 </script>
 
