@@ -292,12 +292,20 @@ export default {
       if (this.touchendX < this.touchstartX && Math.abs(this.touchstartX - this.touchendX) >= this.swipeThershold) {
         console.log('Left')
         // adding functionality for swipe left
-        this.moveNxt()
+        if (this.rtl) {
+          this.movePrv()
+        } else {
+          this.moveNxt()
+        }
       }
 
       if (this.touchendX > this.touchstartX && Math.abs(this.touchstartX - this.touchendX) >= this.swipeThershold) {
         console.log('Right')
-        this.movePrv()
+        if (this.rtl) {
+          this.moveNxt()
+        } else {
+          this.movePrv()
+        }
       }
 
       if (this.touchendY < this.touchstartY && Math.abs(this.touchstartY - this.touchendY) >= this.swipeThershold) {
