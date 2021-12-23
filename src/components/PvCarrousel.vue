@@ -1,5 +1,5 @@
 <template lang="">
-    <div :style="rtl ? 'direction:rtl' : ''">
+    <div :id="containerId" :style="rtl ? 'direction:rtl' : ''">
         <div ref="pv_caro" class="pv_caro" :class="{pv_caro_vertical: vertical}" :style="preventTouchScorll ? 'overflow:hidden':''">
             <div ref="pv_container" class="pv_container" @mousedown="grabCursor" @mouseup="releasCursor" :style="{ transform: transform_data, gap: gap +'px',transition: `transform ${transition_speed}s ${transition_timming_function}`}" :class="{pv_grab:grab, pv_container_vertical:vertical }">
                 <slot/>
@@ -99,11 +99,11 @@ export default {
   mounted() {
     this.transformation_value = this.offset
     if (process.browser) {
-      this.width_of_card = document.querySelector('.pv_card').clientWidth
+      this.width_of_card = document.querySelector(`#${this.containerId} .pv_card`).clientWidth
       this.cards_container = this.$refs.pv_container
       this.width_of_cards_container = this.cards_container.clientWidth
       this.width_of_viewport_container = this.$refs.pv_caro.clientWidth
-      this.all_cards = document.querySelectorAll('.pv_card')
+      this.all_cards = document.querySelectorAll(`#${this.containerId} .pv_card`)
       this.number_of_all_cards = this.all_cards.length
       this.pages = Math.round(this.number_of_chunks)
       if (this.loop) {
@@ -112,7 +112,7 @@ export default {
         })
       }
       if (this.highLightItem && this.loop) {
-        this.allDuplicatedCards = document.querySelectorAll('.pv_card')
+        this.allDuplicatedCards = document.querySelectorAll(`#${this.containerId} .pv_card`)
         this.allDuplicatedCards[this.highLightItem - 1 + (this.initIndex - 1)].classList.add(this.hitglightClass)
       }
     }
@@ -121,6 +121,9 @@ export default {
     this.addTouchEventListener()
   },
   computed: {
+    containerId() {
+      return Math.random().toString(36).substring(2, 5) + Math.random().toString(36).substring(2, 5)
+    },
     number_of_cards_in_chunk() {
       // how many cards can be seen in a viewport
       const initial_value = this.width_of_viewport_container / (this.width_of_card + this.gap)
