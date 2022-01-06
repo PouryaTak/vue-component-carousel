@@ -1,7 +1,7 @@
 <template lang="">
     <div :id="containerId" :style="rtl ? 'direction:rtl' : ''">
         <div ref="pv_caro" class="pv_caro" :class="{pv_caro_vertical: vertical}" :style="preventTouchScorll ? 'overflow:hidden':''">
-            <div ref="pv_container" class="pv_container" @mousedown="grabCursor" @mouseup="releasCursor" :style="{ transform: transform_data, gap: gap +'px',transition: `transform ${transition_speed}s ${transition_timming_function}`}" :class="{pv_grab:grab, pv_container_vertical:vertical }">
+            <div ref="pv_container" class="pv_container" @mousedown="grabCursor" @mouseup="releasCursor" :style="{ transform: transform_data, gap: gap +'px',transition: `transform ${transition_speed}s ${transition_timming_function}`}" :class="{pv_grab:grab, pv_container_vertical:vertical }" draggable>
                 <slot/>
             </div>
         </div>
@@ -19,7 +19,7 @@
 
 export default {
   name: 'PvCarrousel',
-  data() {
+  data () {
     return {
       width_of_viewport_container: null,
       width_of_card: null,
@@ -43,60 +43,60 @@ export default {
       touchstartY: null,
       touchendX: null,
       touchendY: null,
-      swipeThershold: 50,
+      swipeThershold: 50
     }
   },
   props: {
     rewind: {
       type: Boolean,
-      default: false,
+      default: false
     },
     rtl: {
       type: Boolean,
-      default: false,
+      default: false
     },
     grab: {
       type: Boolean,
-      default: false,
+      default: false
     },
     loop: {
       type: Boolean,
-      default: false,
+      default: false
     },
     gap: {
       type: Number,
-      default: 10,
+      default: 10
     },
     dots: {
       type: Boolean,
-      default: true,
+      default: true
     },
     chunk: {
       type: Boolean,
-      default: false,
+      default: false
     },
     vertical: {
       type: Boolean,
-      default: false,
+      default: false
     },
     startFrom: {
       type: Number,
-      default: 1,
+      default: 1
     },
     preventTouchScorll: {
       type: Boolean,
-      default: true,
+      default: true
     },
     highLightItem: {
       type: Number,
-      default: 2,
+      default: 2
     },
     hitglightClass: {
       type: String,
-      default: 'pv_highlight',
-    },
+      default: 'pv_highlight'
+    }
   },
-  mounted() {
+  mounted () {
     this.transformation_value = this.offset
     if (process.browser) {
       this.width_of_card = document.querySelector(`#${this.containerId} .pv_card`).clientWidth
@@ -119,33 +119,34 @@ export default {
     this.transformation_value += (this.width_of_card + this.gap) * (this.startFrom - 1)
     this.directingTheMovment()
     this.addTouchEventListener()
+    this.addDragEventListner()
   },
   computed: {
-    containerId() {
-      return Math.random().toString(36).substring(2, 5) + Math.random().toString(36).substring(2, 5)
+    containerId () {
+      return 'pv_' + Math.random().toString(36).substring(2, 5) + Math.random().toString(36).substring(2, 5)
     },
-    number_of_cards_in_chunk() {
+    number_of_cards_in_chunk () {
       // how many cards can be seen in a viewport
       const initial_value = this.width_of_viewport_container / (this.width_of_card + this.gap)
       const total_width_of_cards = this.width_of_viewport_container - Math.floor(initial_value) * this.gap
       return total_width_of_cards / this.width_of_card
     },
-    number_of_chunks() {
+    number_of_chunks () {
       // think of it as dots in carousel
       return this.width_of_cards_container / (this.number_of_cards_in_chunk * this.width_of_card + (this.number_of_cards_in_chunk - 1) * this.gap)
     },
-    extra_width() {
+    extra_width () {
       const extra = (1 - (this.number_of_cards_in_chunk % 1)) * this.width_of_card
       return extra === this.width_of_card ? extra + this.gap : extra
 
       // return ((this.width_of_cards_container/this.width_of_viewport_container) % 1) * this.width_of_viewport_container
     },
-    lastIndex() {
+    lastIndex () {
       return this.number_of_all_cards - Math.floor(this.number_of_cards_in_chunk)
-    },
+    }
   },
   methods: {
-    directingTheMovment() {
+    directingTheMovment () {
       let actionDirection
       // setting the action of the movement (eg. next, prev)
       if (this.transformation_value < this.offset) {
@@ -162,7 +163,7 @@ export default {
         this.transform_data = `translateX(${actionDirection}px)`
       }
     },
-    moveNxt() {
+    moveNxt () {
       if (this.chunk) {
         this.dotFunc(this.dot === this.pages ? (this.rewind ? 1 : this.pages) : ++this.dot)
         return
@@ -199,7 +200,7 @@ export default {
       this.transformation_value += this.width_of_card + this.gap
       this.directingTheMovment()
     },
-    movePrv() {
+    movePrv () {
       if (this.chunk) {
         this.dotFunc(this.dot === 1 ? (this.rewind ? this.pages : 1) : --this.dot)
         return
@@ -232,7 +233,7 @@ export default {
       this.transformation_value -= this.width_of_card + this.gap
       this.directingTheMovment()
     },
-    grabMove(e) {
+    grabMove (e) {
       do {
         this.arr.push(e.clientX)
       } while (this.arr.length === 20)
@@ -255,7 +256,7 @@ export default {
       console.log(this.mouseMove)
       console.log(this.transformation_value)
     },
-    grabCursor(e) {
+    grabCursor (e) {
       const container = document.querySelector('.pv_container')
       if (this.grab) {
         this.grabbing = !this.grabbing
@@ -266,7 +267,7 @@ export default {
         container.addEventListener('mousemove', this.grabMove)
       }
     },
-    releasCursor(e) {
+    releasCursor (e) {
       const container = document.querySelector('.pv_container')
       if (this.grab) {
         this.grabbing = !this.grabbing
@@ -279,7 +280,7 @@ export default {
         this.mouseMove = 0
       }
     },
-    dotFunc(num) {
+    dotFunc (num) {
       this.dot = num
       if (num === this.pages) {
         this.initIndex = this.lastIndex + 1
@@ -291,7 +292,7 @@ export default {
       this.transformation_value = (this.width_of_card + this.gap) * (this.initIndex - 1)
       this.directingTheMovment()
     },
-    calcSwipeDirection() {
+    calcSwipeDirection () {
       if (this.touchendX < this.touchstartX && Math.abs(this.touchstartX - this.touchendX) >= this.swipeThershold) {
         console.log('Left')
         // adding functionality for swipe left
@@ -323,7 +324,7 @@ export default {
         console.log('Tap')
       }
     },
-    addTouchEventListener() {
+    addTouchEventListener () {
       this.cards_container.addEventListener(
         'touchstart',
         (event) => {
@@ -344,17 +345,50 @@ export default {
         false
       )
     },
+    addDragEventListner () {
+      this.cards_container.addEventListener(
+        'dragstart',
+        (event) => {
+          // replace draging shadow with trasparent div
+          const elem = document.createElement('div')
+          elem.id = 'drag-ghost'
+          this.cards_container.appendChild(elem)
+          event.dataTransfer.setDragImage(elem, 0, 0)
+
+          this.cards_container.style.cursor = 'grabbing'
+          this.cards_container.style.userSelect = 'none'
+          console.log(event)
+
+          this.touchstartX = event.screenX
+          this.touchstartY = event.screenY
+        }
+      )
+      this.cards_container.addEventListener(
+        'dragend',
+        (event) => {
+          const ghost = document.getElementById('drag-ghost')
+          if (ghost.parentNode) {
+            ghost.parentNode.removeChild(ghost)
+          }
+          this.cards_container.style.cursor = 'grab'
+          this.cards_container.style.removeProperty('user-select')
+          this.touchendX = event.screenX
+          this.touchendY = event.screenY
+          this.calcSwipeDirection()
+        }
+      )
+    }
   },
   watch: {
-    mouseMove(newval, oldval) {
+    mouseMove (newval, oldval) {
       if (newval < 0) {
         console.log('moue moved!')
       }
     },
-    number_of_chunks(to, from) {
+    number_of_chunks (to, from) {
       this.pages = Math.round(to)
     },
-    initIndex(to, from) {
+    initIndex (to, from) {
       if (from !== 1 && to === this.number_of_all_cards + 1) {
         setTimeout(() => {
           this.transition_speed = 0
@@ -375,11 +409,17 @@ export default {
         this.allDuplicatedCards[this.highLightItem - 1 + (this.initIndex - 1)].classList.add(this.hitglightClass)
         this.allDuplicatedCards[this.highLightItem - 1 + (from - 1)].classList.remove(this.hitglightClass)
       }
-    },
-  },
+    }
+  }
 }
 </script>
 <style>
+#drag-ghost {
+  width: 0;
+  height: 0;
+  position: absolute;
+  background: #0000;
+}
 .pv_caro {
   /* overflow: scroll; */
   overflow: hidden;
