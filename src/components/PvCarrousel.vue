@@ -6,7 +6,7 @@
             </div>
         </div>
         <div ref="pv_dots" class="pv_dots" v-if="dots">
-          <div ref="pv_dot" class="pv_dot" v-for="i in pages" :key="i" @click="dotFunc(i)" :class="dot == i ? 'pv_opacity':''"></div>
+          <div ref="pv_dot" class="pv_dot" v-for="i in pages" :key="i" @click="dotFunc(i)" :class="activeDot == i ? 'pv_opacity':''"></div>
         </div>
     </div>
 </template>
@@ -143,6 +143,17 @@ export default {
     },
     lastIndex () {
       return this.number_of_all_cards - Math.floor(this.number_of_cards_in_chunk)
+    },
+    activeDot () {
+      let activeDot
+      for (let i = 0; i <= this.pages; i++) {
+        if (this.initIndex >= i * this.number_of_cards_in_chunk) {
+          activeDot = i
+        } else {
+          break
+        }
+      }
+      return activeDot + 1
     }
   },
   methods: {
