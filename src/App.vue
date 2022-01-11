@@ -3,7 +3,7 @@
     <div style="display: flex; margin-bottom: 20px; justify-content: center; background: #eee">
       <div style="margin: 0 10px">
         <label for="grab">Grab</label>
-        <input type="checkbox" name="grab" id="grab" @change="grab = !grab" :checked="grab" />
+        <input type="checkbox" name="grab" id="grab" @change="grab = !grab, refreshComponent()" :checked="grab" />
       </div>
       <div style="margin: 0 10px">
         <label for="rewind">Rewind</label>
@@ -21,10 +21,10 @@
         <label for="chunk">Chunk</label>
         <input type="checkbox" name="chunk" id="chunk" @change="chunk = !chunk" :checked="chunk" />
       </div>
-      <div style="margin: 0 10px">
+      <!-- <div style="margin: 0 10px">
         <label for="chunk">Vertical</label>
         <input type="checkbox" name="vertical" id="vertical" @change="vertical = !vertical" :checked="vertical" />
-      </div>
+      </div> -->
       <div style="margin: 0 10px">
         <label for="gap">Gap</label>
         <input type="number" name="gap" id="gap" v-model.number="gap" style="width: 50px; margin: 0 5px" />
@@ -49,7 +49,7 @@ export default {
   },
   data () {
     return {
-      grab: false,
+      grab: true,
       rewind: false,
       rtl: false,
       loop: true,
@@ -61,6 +61,11 @@ export default {
   },
   watch: {
     loop (to, from) {
+      this.refreshComponent()
+    }
+  },
+  methods: {
+    refreshComponent () {
       ++this.key
     }
   }

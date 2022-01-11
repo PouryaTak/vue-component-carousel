@@ -1,7 +1,7 @@
 <template lang="">
     <div :id="containerId" :style="rtl ? 'direction:rtl' : ''">
         <div ref="pv_caro" class="pv_caro" :class="{pv_caro_vertical: vertical}" :style="preventTouchScorll ? 'overflow:hidden':''">
-            <div ref="pv_container" class="pv_container" @mousedown="grabCursor" @mouseup="releasCursor" :style="{ transform: transform_data, gap: gap +'px',transition: `transform ${transition_speed}s ${transition_timming_function}`}" :class="{pv_grab:grab, pv_container_vertical:vertical }" draggable>
+            <div ref="pv_container" class="pv_container" :style="{ transform: transform_data, gap: gap +'px',transition: `transform ${transition_speed}s ${transition_timming_function}`}" :class="{pv_grab:grab, pv_container_vertical:vertical }" :draggable="grab">
                 <slot/>
             </div>
         </div>
@@ -12,8 +12,6 @@
 </template>
 <script>
 //! -------------------------------------------------------------------- there is an issue with gaps larger than card's width
-
-// ? ToDo grab function
 
 // ? ToDo fix vertical movement function
 
@@ -153,7 +151,7 @@ export default {
           break
         }
       }
-      return activeDot + 1
+      return activeDot === this.pages ? activeDot : activeDot + 1
     }
   },
   methods: {
@@ -244,53 +242,6 @@ export default {
       this.transformation_value -= this.width_of_card + this.gap
       this.directingTheMovment()
     },
-    grabMove (e) {
-      do {
-        this.arr.push(e.clientX)
-      } while (this.arr.length === 20)
-      // ------------------------------------------------------------------------------------
-      this.mouseMove = this.arr[this.arr.length - 1] - this.arr[0] // to check the direction of grabbing
-      if (this.mouseMove > 0 && this.transformation_value !== this.offset) {
-        this.movePrv()
-      } else if (this.mouseMove < 0 && this.transformation_value <= (this.width_of_card + this.gap) * (this.lastIndex - 1) + this.extra_width) {
-        this.moveNxt()
-      } else {
-        return
-      }
-      // if (this.mouseMove > 0 && this.transformation_value !== this.offset) {
-      //   this.transformation_value -= 10
-      //   this.directingTheMovment()
-      // } else if (this.mouseMove < 0 && this.transformation_value <= (this.width_of_card + this.gap) * (this.lastIndex - 1) + this.extra_width) {
-      //   this.transformation_value += 10
-      //   this.directingTheMovment()
-      // }
-      console.log(this.mouseMove)
-      console.log(this.transformation_value)
-    },
-    grabCursor (e) {
-      const container = document.querySelector('.pv_container')
-      if (this.grab) {
-        this.grabbing = !this.grabbing
-        console.log(this.grabbing)
-        container.style.cursor = 'grabbing'
-        container.style.userSelect = 'none'
-        this.grabMove.int = e.clientX
-        container.addEventListener('mousemove', this.grabMove)
-      }
-    },
-    releasCursor (e) {
-      const container = document.querySelector('.pv_container')
-      if (this.grab) {
-        this.grabbing = !this.grabbing
-        console.log(this.grabbing)
-        container.style.cursor = 'grab'
-        container.style.removeProperty('user-select')
-        this.grabMove.end = e.clientX
-        container.removeEventListener('mousemove', this.grabMove)
-        this.arr.splice(0, this.arr.length)
-        this.mouseMove = 0
-      }
-    },
     dotFunc (num) {
       this.dot = num
       if (num === this.pages) {
@@ -336,6 +287,7 @@ export default {
       }
     },
     addTouchEventListener () {
+      if (!this.grab) { return }
       this.cards_container.addEventListener(
         'touchstart',
         (event) => {
@@ -350,13 +302,14 @@ export default {
         (event) => {
           this.touchendX = event.changedTouches[0].screenX
           this.touchendY = event.changedTouches[0].screenY
-          console.log(this.touchendX, this.touchstartX, this.swipeThershold, this.touchendY, this.touchstartY)
+          // console.log(this.touchendX, this.touchstartX, this.swipeThershold, this.touchendY, this.touchstartY)
           this.calcSwipeDirection()
         },
         false
       )
     },
     addDragEventListner () {
+      if (!this.grab) { return }
       this.cards_container.addEventListener(
         'dragstart',
         (event) => {
@@ -367,8 +320,8 @@ export default {
           event.dataTransfer.setDragImage(elem, 0, 0)
 
           this.cards_container.style.cursor = 'grabbing'
-          this.cards_container.style.userSelect = 'none'
-          console.log(event)
+          // this.cards_container.style.userSelect = 'none'
+          // console.log(event)
 
           this.touchstartX = event.screenX
           this.touchstartY = event.screenY
