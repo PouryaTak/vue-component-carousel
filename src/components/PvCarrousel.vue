@@ -97,7 +97,7 @@ export default {
   mounted () {
     this.transformation_value = this.offset
     if (process.browser) {
-      this.width_of_card = document.querySelector(`#${this.containerId} .pv_card`).clientWidth
+      this.width_of_card = document.querySelector(`#${this.containerId} .pv_card`).offsetWidth //changed from clientWidth to offsetWidth to include boarders
       this.cards_container = this.$refs.pv_container
       this.width_of_cards_container = this.cards_container.clientWidth
       this.width_of_viewport_container = this.$refs.pv_caro.clientWidth
@@ -387,6 +387,7 @@ export default {
 .pv_caro {
   /* overflow: scroll; */
   overflow: hidden;
+   width: 100%;
 }
 .pv_caro_vertical {
   height: 100%;

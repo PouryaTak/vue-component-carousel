@@ -3,7 +3,7 @@
     <div style="display: flex; margin-bottom: 20px; justify-content: center; background: #eee">
       <div style="margin: 0 10px">
         <label for="grab">Grab</label>
-        <input type="checkbox" name="grab" id="grab" @change="grab = !grab, refreshComponent()" :checked="grab" />
+        <input type="checkbox" name="grab" id="grab" @change=";(grab = !grab), refreshComponent()" :checked="grab" />
       </div>
       <div style="margin: 0 10px">
         <label for="rewind">Rewind</label>
@@ -30,12 +30,14 @@
         <input type="number" name="gap" id="gap" v-model.number="gap" style="width: 50px; margin: 0 5px" />
       </div>
     </div>
-    <button @click="$refs.pvcarousel.movePrv()">Prev</button>
-    <button @click="$refs.pvcarousel.moveNxt()">next</button>
-    <div style="height:600px;">
-      <PvCarrousel ref="pvcarousel" :grab="grab" :rewind="rewind" :rtl="rtl" :loop="loop" :gap="gap" :chunk="chunk" :key="key" :vertical="vertical">
-        <div class="pv_card" v-for="i in 10" :key="i" :style="`filter:hue-rotate(${i * 20}deg)`">{{ i }}</div>
-      </PvCarrousel>
+    <div style="width:80%;margin:0 auto;">
+      <button @click="$refs.pvcarousel.movePrv()">Prev</button>
+      <button @click="$refs.pvcarousel.moveNxt()">next</button>
+      <div style="height:600px;">
+        <PvCarrousel ref="pvcarousel" :grab="grab" :rewind="rewind" :rtl="rtl" :loop="loop" :gap="gap" :chunk="chunk" :key="key" :vertical="vertical">
+          <div class="pv_card" v-for="i in 10" :key="i" :style="`filter:hue-rotate(${i * 20}deg)`">{{ i }}</div>
+        </PvCarrousel>
+      </div>
     </div>
   </div>
 </template>
@@ -47,7 +49,7 @@ export default {
   components: {
     PvCarrousel
   },
-  data () {
+  data() {
     return {
       grab: true,
       rewind: false,
@@ -60,12 +62,12 @@ export default {
     }
   },
   watch: {
-    loop (to, from) {
+    loop(to, from) {
       this.refreshComponent()
     }
   },
   methods: {
-    refreshComponent () {
+    refreshComponent() {
       ++this.key
     }
   }
