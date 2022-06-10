@@ -30,7 +30,7 @@
         <input type="number" name="gap" id="gap" v-model.number="gap" style="width: 50px; margin: 0 5px" />
       </div>
     </div>
-    <div style="width:80%;margin:0 auto;">
+    <div style="width:80%;margin:0 auto">
       <button @click="$refs.pvcarousel.movePrv()">Prev</button>
       <button @click="$refs.pvcarousel.moveNxt()">next</button>
       <div style="height:600px;">

@@ -32,7 +32,7 @@ export default {
       arr: [],
       mouseMove: 0,
       pages: null,
-      dot: 1,
+      activeDot: 1,
       allDuplicatedCards: null,
       transition_speed: 0.3,
       transition_timming_function: 'ease',
@@ -103,7 +103,8 @@ export default {
       this.width_of_viewport_container = this.$refs.pv_caro.clientWidth
       this.all_cards = document.querySelectorAll(`#${this.containerId} .pv_card`)
       this.number_of_all_cards = this.all_cards.length
-      this.pages = Math.round(this.number_of_chunks)
+      // this.pages = Math.round(this.number_of_chunks)
+      this.pages = Math.ceil(this.number_of_chunks)
       if (this.loop) {
         this.all_cards.forEach((card) => {
           this.cards_container.appendChild(card.cloneNode(true))
@@ -174,7 +175,7 @@ export default {
     },
     moveNxt () {
       if (this.chunk) {
-        this.dotFunc(this.dot === this.pages ? (this.rewind ? 1 : this.pages) : ++this.dot)
+        this.dotFunc(this.activeDot === this.pages ? (this.rewind ? 1 : this.pages) : ++this.activeDot)
         return
       }
       if (!this.loop && !this.rewind && this.initIndex > this.lastIndex) {
@@ -203,7 +204,7 @@ export default {
         return
       }
 
-      // ?------------------------------------- loop --------------------------------------------------
+      // ?------------------------------------- loop end --------------------------------------------------
       this.transition_speed = 0.3
       ++this.initIndex
       this.transformation_value += this.width_of_card + this.gap
@@ -211,7 +212,7 @@ export default {
     },
     movePrv () {
       if (this.chunk) {
-        this.dotFunc(this.dot === 1 ? (this.rewind ? this.pages : 1) : --this.dot)
+        this.dotFunc(this.activeDot === 1 ? (this.rewind ? this.pages : 1) : --this.activeDot)
         return
       }
       if (this.loop && this.initIndex === 1) {
@@ -243,7 +244,7 @@ export default {
       this.directingTheMovment()
     },
     dotFunc (num) {
-      this.dot = num
+      this.activeDot = num
       if (num === this.pages) {
         this.initIndex = this.lastIndex + 1
         this.transformation_value = (this.width_of_card + this.gap) * (this.lastIndex - 1) + this.extra_width
