@@ -1,14 +1,20 @@
 <template lang="">
-    <div :id="containerId" :style="rtl ? 'direction:rtl' : ''">
-        <div ref="pv_caro" class="pv_caro" :class="{pv_caro_vertical: vertical}" :style="preventTouchScorll ? 'overflow:hidden':''">
-            <div ref="pv_container" class="pv_container" :style="{ transform: transform_data, gap: gap +'px',transition: `transform ${transition_speed}s ${transition_timming_function}`}" :class="{pv_grab:grab, pv_container_vertical:vertical }" :draggable="grab">
-                <slot/>
-            </div>
-        </div>
-        <div ref="pv_dots" class="pv_dots" v-if="dots">
-          <div ref="pv_dot" class="pv_dot" v-for="i in pages" :key="i" @click="dotFunc(i)" :class="activeDot == i ? 'pv_opacity':''"></div>
-        </div>
+  <div :id="containerId" :style="rtl ? 'direction:rtl' : ''">
+    <div ref="pv_caro" class="pv_caro" :class="{ pv_caro_vertical: vertical }" :style="preventTouchScorll ? 'overflow:hidden' : ''">
+      <div
+        ref="pv_container"
+        class="pv_container"
+        :style="{ transform: transform_data, gap: gap + 'px', transition: `transform ${transition_speed}s ${transition_timming_function}` }"
+        :class="{ pv_grab: grab, pv_container_vertical: vertical }"
+        :draggable="grab"
+      >
+        <slot />
+      </div>
     </div>
+    <div ref="pv_dots" class="pv_dots" v-if="dots">
+      <div ref="pv_dot" class="pv_dot" v-for="i in pages" :key="i" @click="dotFunc(i)" :class="activeDot == i ? 'pv_opacity' : ''"></div>
+    </div>
+  </div>
 </template>
 <script>
 //! -------------------------------------------------------------------- there is an issue with gaps larger than card's width
@@ -17,7 +23,7 @@
 
 export default {
   name: 'PvCarrousel',
-  data () {
+  data() {
     return {
       width_of_viewport_container: null,
       width_of_card: null,
@@ -32,7 +38,7 @@ export default {
       arr: [],
       mouseMove: 0,
       pages: null,
-      activeDot: 1,
+      // activeDot: 1,
       allDuplicatedCards: null,
       transition_speed: 0.3,
       transition_timming_function: 'ease',
@@ -94,56 +100,46 @@ export default {
       default: 'pv_highlight'
     }
   },
-  mounted () {
+  mounted() {
     this.transformation_value = this.offset
-    if (process.browser) {
-      this.width_of_card = document.querySelector(`#${this.containerId} .pv_card`).offsetWidth //changed from clientWidth to offsetWidth to include boarders
-      this.cards_container = this.$refs.pv_container
-      this.width_of_cards_container = this.cards_container.clientWidth
-      this.width_of_viewport_container = this.$refs.pv_caro.clientWidth
-      this.all_cards = document.querySelectorAll(`#${this.containerId} .pv_card`)
-      this.number_of_all_cards = this.all_cards.length
-      // this.pages = Math.round(this.number_of_chunks)
-      this.pages = Math.ceil(this.number_of_chunks)
-      if (this.loop) {
-        this.all_cards.forEach((card) => {
-          this.cards_container.appendChild(card.cloneNode(true))
-        })
-      }
-      if (this.highLightItem && this.loop) {
-        this.allDuplicatedCards = document.querySelectorAll(`#${this.containerId} .pv_card`)
-        this.allDuplicatedCards[this.highLightItem - 1 + (this.initIndex - 1)].classList.add(this.hitglightClass)
-      }
-    }
+    this.initialSetup()
     this.transformation_value += (this.width_of_card + this.gap) * (this.startFrom - 1)
     this.directingTheMovment()
     this.addTouchEventListener()
     this.addDragEventListner()
   },
   computed: {
-    containerId () {
-      return 'pv_' + Math.random().toString(36).substring(2, 5) + Math.random().toString(36).substring(2, 5)
+    containerId() {
+      return (
+        'pv_' +
+        Math.random()
+          .toString(36)
+          .substring(2, 5) +
+        Math.random()
+          .toString(36)
+          .substring(2, 5)
+      )
     },
-    number_of_cards_in_chunk () {
+    number_of_cards_in_chunk() {
       // how many cards can be seen in a viewport
       const initial_value = this.width_of_viewport_container / (this.width_of_card + this.gap)
       const total_width_of_cards = this.width_of_viewport_container - Math.floor(initial_value) * this.gap
       return total_width_of_cards / this.width_of_card
     },
-    number_of_chunks () {
+    number_of_chunks() {
       // think of it as dots in carousel
       return this.width_of_cards_container / (this.number_of_cards_in_chunk * this.width_of_card + (this.number_of_cards_in_chunk - 1) * this.gap)
     },
-    extra_width () {
+    extra_width() {
       const extra = (1 - (this.number_of_cards_in_chunk % 1)) * this.width_of_card
       return extra === this.width_of_card ? extra + this.gap : extra
 
       // return ((this.width_of_cards_container/this.width_of_viewport_container) % 1) * this.width_of_viewport_container
     },
-    lastIndex () {
+    lastIndex() {
       return this.number_of_all_cards - Math.floor(this.number_of_cards_in_chunk)
     },
-    activeDot () {
+    activeDot() {
       let activeDot
       for (let i = 0; i <= this.pages; i++) {
         if (this.initIndex >= i * this.number_of_cards_in_chunk) {
@@ -153,10 +149,32 @@ export default {
         }
       }
       return activeDot === this.pages ? activeDot : activeDot + 1
+      // indicats which dot is active
     }
   },
   methods: {
-    directingTheMovment () {
+    initialSetup() {
+      if (process.browser) {
+        this.width_of_card = document.querySelector(`#${this.containerId} .pv_card`).offsetWidth //changed from clientWidth to offsetWidth to include boarders
+        this.cards_container = this.$refs.pv_container
+        this.width_of_cards_container = this.cards_container.clientWidth
+        this.width_of_viewport_container = this.$refs.pv_caro.clientWidth
+        this.all_cards = document.querySelectorAll(`#${this.containerId} .pv_card`)
+        this.number_of_all_cards = this.all_cards.length
+        // this.pages = Math.round(this.number_of_chunks)
+        this.pages = Math.ceil(this.number_of_chunks)
+        if (this.loop) {
+          this.all_cards.forEach(card => {
+            this.cards_container.appendChild(card.cloneNode(true))
+          })
+        }
+        if (this.highLightItem && this.loop) {
+          this.allDuplicatedCards = document.querySelectorAll(`#${this.containerId} .pv_card`)
+          this.allDuplicatedCards[this.highLightItem - 1 + (this.initIndex - 1)].classList.add(this.hitglightClass)
+        }
+      }
+    },
+    directingTheMovment() {
       let actionDirection
       // setting the action of the movement (eg. next, prev)
       if (this.transformation_value < this.offset) {
@@ -173,7 +191,7 @@ export default {
         this.transform_data = `translateX(${actionDirection}px)`
       }
     },
-    moveNxt () {
+    moveNxt() {
       if (this.chunk) {
         this.dotFunc(this.activeDot === this.pages ? (this.rewind ? 1 : this.pages) : ++this.activeDot)
         return
@@ -210,7 +228,7 @@ export default {
       this.transformation_value += this.width_of_card + this.gap
       this.directingTheMovment()
     },
-    movePrv () {
+    movePrv() {
       if (this.chunk) {
         this.dotFunc(this.activeDot === 1 ? (this.rewind ? this.pages : 1) : --this.activeDot)
         return
@@ -243,7 +261,7 @@ export default {
       this.transformation_value -= this.width_of_card + this.gap
       this.directingTheMovment()
     },
-    dotFunc (num) {
+    dotFunc(num) {
       this.activeDot = num
       if (num === this.pages) {
         this.initIndex = this.lastIndex + 1
@@ -255,7 +273,7 @@ export default {
       this.transformation_value = (this.width_of_card + this.gap) * (this.initIndex - 1)
       this.directingTheMovment()
     },
-    calcSwipeDirection () {
+    calcSwipeDirection() {
       if (this.touchendX < this.touchstartX && Math.abs(this.touchstartX - this.touchendX) >= this.swipeThershold) {
         console.log('Left')
         // adding functionality for swipe left
@@ -287,11 +305,13 @@ export default {
         console.log('Tap')
       }
     },
-    addTouchEventListener () {
-      if (!this.grab) { return }
+    addTouchEventListener() {
+      if (!this.grab) {
+        return
+      }
       this.cards_container.addEventListener(
         'touchstart',
-        (event) => {
+        event => {
           this.touchstartX = event.changedTouches[0].screenX
           this.touchstartY = event.changedTouches[0].screenY
         },
@@ -300,7 +320,7 @@ export default {
 
       this.cards_container.addEventListener(
         'touchend',
-        (event) => {
+        event => {
           this.touchendX = event.changedTouches[0].screenX
           this.touchendY = event.changedTouches[0].screenY
           // console.log(this.touchendX, this.touchstartX, this.swipeThershold, this.touchendY, this.touchstartY)
@@ -309,51 +329,47 @@ export default {
         false
       )
     },
-    addDragEventListner () {
-      if (!this.grab) { return }
-      this.cards_container.addEventListener(
-        'dragstart',
-        (event) => {
-          // replace draging shadow with trasparent div
-          const elem = document.createElement('div')
-          elem.id = 'drag-ghost'
-          this.cards_container.appendChild(elem)
-          event.dataTransfer.setDragImage(elem, 0, 0)
+    addDragEventListner() {
+      if (!this.grab) {
+        return
+      }
+      this.cards_container.addEventListener('dragstart', event => {
+        // replace draging shadow with trasparent div
+        const elem = document.createElement('div')
+        elem.id = 'drag-ghost'
+        this.cards_container.appendChild(elem)
+        event.dataTransfer.setDragImage(elem, 0, 0)
 
-          this.cards_container.style.cursor = 'grabbing'
-          // this.cards_container.style.userSelect = 'none'
-          // console.log(event)
+        this.cards_container.style.cursor = 'grabbing'
+        // this.cards_container.style.userSelect = 'none'
+        // console.log(event)
 
-          this.touchstartX = event.screenX
-          this.touchstartY = event.screenY
+        this.touchstartX = event.screenX
+        this.touchstartY = event.screenY
+      })
+      this.cards_container.addEventListener('dragend', event => {
+        const ghost = document.getElementById('drag-ghost')
+        if (ghost.parentNode) {
+          ghost.parentNode.removeChild(ghost)
         }
-      )
-      this.cards_container.addEventListener(
-        'dragend',
-        (event) => {
-          const ghost = document.getElementById('drag-ghost')
-          if (ghost.parentNode) {
-            ghost.parentNode.removeChild(ghost)
-          }
-          this.cards_container.style.cursor = 'grab'
-          this.cards_container.style.removeProperty('user-select')
-          this.touchendX = event.screenX
-          this.touchendY = event.screenY
-          this.calcSwipeDirection()
-        }
-      )
+        this.cards_container.style.cursor = 'grab'
+        this.cards_container.style.removeProperty('user-select')
+        this.touchendX = event.screenX
+        this.touchendY = event.screenY
+        this.calcSwipeDirection()
+      })
     }
   },
   watch: {
-    mouseMove (newval, oldval) {
+    mouseMove(newval, oldval) {
       if (newval < 0) {
         console.log('moue moved!')
       }
     },
-    number_of_chunks (to, from) {
+    number_of_chunks(to, from) {
       this.pages = Math.round(to)
     },
-    initIndex (to, from) {
+    initIndex(to, from) {
       if (from !== 1 && to === this.number_of_all_cards + 1) {
         setTimeout(() => {
           this.transition_speed = 0
@@ -388,7 +404,7 @@ export default {
 .pv_caro {
   /* overflow: scroll; */
   overflow: hidden;
-   width: 100%;
+  width: 100%;
 }
 .pv_caro_vertical {
   height: 100%;
