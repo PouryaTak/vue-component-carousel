@@ -6,7 +6,6 @@
         class="pv_container"
         :style="{ transform: transform_data, gap: gap + 'px', transition: `transform ${transition_speed}s ${transition_timming_function}` }"
         :class="{ pv_grab: grab, pv_container_vertical: vertical }"
-        :draggable="grab"
       >
         <slot />
       </div>
@@ -98,6 +97,10 @@ export default {
     hitglightClass: {
       type: String,
       default: 'pv_highlight'
+    },
+    autoPlay: {
+      type: Number,
+      default: 0
     }
   },
   mounted() {
@@ -107,6 +110,9 @@ export default {
     this.directingTheMovment()
     this.addTouchEventListener()
     this.addDragEventListner()
+    if (this.autoPlay) {
+      setInterval(this.moveNxt, this.autoPlay)
+    }
   },
   computed: {
     containerId() {
@@ -155,7 +161,7 @@ export default {
   methods: {
     initialSetup() {
       if (process.browser) {
-        this.width_of_card = document.querySelector(`#${this.containerId} .pv_card`).offsetWidth //changed from clientWidth to offsetWidth to include boarders
+        this.width_of_card = document.querySelector(`#${this.containerId} .pv_card`).offsetWidth // changed from clientWidth to offsetWidth to include boarders
         this.cards_container = this.$refs.pv_container
         this.width_of_cards_container = this.cards_container.clientWidth
         this.width_of_viewport_container = this.$refs.pv_caro.clientWidth
@@ -333,31 +339,44 @@ export default {
       if (!this.grab) {
         return
       }
-      this.cards_container.addEventListener('dragstart', event => {
-        // replace draging shadow with trasparent div
-        const elem = document.createElement('div')
-        elem.id = 'drag-ghost'
-        this.cards_container.appendChild(elem)
-        event.dataTransfer.setDragImage(elem, 0, 0)
-
+      this.cards_container.addEventListener('mousedown', event => {
         this.cards_container.style.cursor = 'grabbing'
-        // this.cards_container.style.userSelect = 'none'
-        // console.log(event)
+      })
 
-        this.touchstartX = event.screenX
-        this.touchstartY = event.screenY
-      })
-      this.cards_container.addEventListener('dragend', event => {
-        const ghost = document.getElementById('drag-ghost')
-        if (ghost.parentNode) {
-          ghost.parentNode.removeChild(ghost)
-        }
+      this.cards_container.addEventListener('mouseup', event => {
         this.cards_container.style.cursor = 'grab'
-        this.cards_container.style.removeProperty('user-select')
-        this.touchendX = event.screenX
-        this.touchendY = event.screenY
-        this.calcSwipeDirection()
       })
+      this.cards_container.addEventListener('touchend', event => {})
+
+      this.cards_container.addEventListener('mouseleave', event => {
+        this.cards_container.style.cursor = 'grab'
+      })
+
+      // this.cards_container.addEventListener('dragstart', event => {
+      //   // replace draging shadow with trasparent div
+      //   const elem = document.createElement('div')
+      //   elem.id = 'drag-ghost'
+      //   this.cards_container.appendChild(elem)
+      //   event.dataTransfer.setDragImage(elem, 0, 0)
+
+      //   this.cards_container.style.cursor = 'progress'
+      //   // this.cards_container.style.userSelect = 'none'
+      //   // console.log(event)
+
+      //   this.touchstartX = event.screenX
+      //   this.touchstartY = event.screenY
+      // })
+      // this.cards_container.addEventListener('dragend', event => {
+      //   const ghost = document.getElementById('drag-ghost')
+      //   if (ghost.parentNode) {
+      //     ghost.parentNode.removeChild(ghost)
+      //   }
+      //   this.cards_container.style.cursor = 'grab'
+      //   this.cards_container.style.removeProperty('user-select')
+      //   this.touchendX = event.screenX
+      //   this.touchendY = event.screenY
+      //   this.calcSwipeDirection()
+      // })
     }
   },
   watch: {
