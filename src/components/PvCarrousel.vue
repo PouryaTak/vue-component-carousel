@@ -46,7 +46,8 @@ export default {
       touchstartY: null,
       touchendX: null,
       touchendY: null,
-      swipeThershold: 50
+      swipeThershold: 50,
+      movement_list: []
     }
   },
   props: {
@@ -177,6 +178,18 @@ export default {
         if (this.highLightItem && this.loop) {
           this.allDuplicatedCards = document.querySelectorAll(`#${this.containerId} .pv_card`)
           this.allDuplicatedCards[this.highLightItem - 1 + (this.initIndex - 1)].classList.add(this.hitglightClass)
+        }
+        if (this.loop) {
+          for (let i = 1; i <= this.number_of_all_cards - 1; i++) {
+            this.movement_list[0] = 0
+            this.movement_list[i] = this.gap + this.width_of_card + this.movement_list[i - 1]
+          }
+        } else {
+          for (let i = 1; i <= this.lastIndex - 1; i++) {
+            this.movement_list[0] = 0
+            this.movement_list[i] = this.gap + this.width_of_card + this.movement_list[i - 1]
+          }
+          this.movement_list[this.lastIndex] = this.movement_list[this.lastIndex - 1] + this.extra_width
         }
       }
     },
@@ -311,6 +324,19 @@ export default {
         console.log('Tap')
       }
     },
+    returnNearstNumber(num, arr, limiter) {
+      if (limiter == undefined) {
+        limiter = (arr[1] - arr[0]) / 2
+      }
+      let closest = arr[0]
+      for (let i of arr) {
+        if (num + limiter < i) {
+          break
+        }
+        closest = i
+      }
+      return closest
+    },
     addTouchEventListener() {
       if (!this.grab) {
         return
@@ -386,7 +412,7 @@ export default {
       }
     },
     number_of_chunks(to, from) {
-      this.pages = Math.round(to)
+      this.pages = Math.ceil(to)
     },
     initIndex(to, from) {
       if (from !== 1 && to === this.number_of_all_cards + 1) {
