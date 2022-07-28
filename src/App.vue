@@ -29,13 +29,19 @@
         <label for="gap">Gap</label>
         <input type="number" name="gap" id="gap" v-model.number="gap" style="width: 50px; margin: 0 5px" />
       </div>
+      <div style="margin: 0 10px">
+        <label for="autoPlay">AutoPlay(sec)</label>
+        <input type="number" name="autoPlay" id="autoPlay" v-model.number="autoPlay" style="width: 50px; margin: 0 5px" @change="refreshComponent"/>
+      </div>
     </div>
     <div style="width:80%;margin:0 auto">
       <button @click="$refs.pvcarousel.movePrv()">Prev</button>
       <button @click="$refs.pvcarousel.moveNxt()">next</button>
       <div style="height:600px;">
-        <PvCarrousel ref="pvcarousel" :grab="grab" :rewind="rewind" :rtl="rtl" :loop="loop" :gap="gap" :chunk="chunk" :key="key" :vertical="vertical">
-          <div class="pv_card" v-for="i in 10" :key="i" :style="`filter:hue-rotate(${i * 20}deg)`">{{ i }}</div>
+        <PvCarrousel ref="pvcarousel" :grab="grab" :rewind="rewind" :rtl="rtl" :loop="loop" :gap="gap" :chunk="chunk" :key="key" :vertical="vertical" :autoPlay="autoPlay">
+          <div class="pv_card" v-for="i in 10" :key="i" :style="`filter:hue-rotate(${i * 20}deg)`">
+          <a :href="`#${i}`">{{i}}</a>
+          </div>
         </PvCarrousel>
       </div>
     </div>
@@ -49,7 +55,7 @@ export default {
   components: {
     PvCarrousel
   },
-  data() {
+  data () {
     return {
       grab: true,
       rewind: false,
@@ -58,16 +64,17 @@ export default {
       chunk: false,
       gap: 20,
       key: 0,
-      vertical: false
+      vertical: false,
+      autoPlay: 0
     }
   },
   watch: {
-    loop(to, from) {
+    loop (to, from) {
       this.refreshComponent()
     }
   },
   methods: {
-    refreshComponent() {
+    refreshComponent () {
       ++this.key
     }
   }

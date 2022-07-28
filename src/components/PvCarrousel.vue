@@ -1,8 +1,9 @@
 <template lang="">
-  <div :id="containerId" :style="rtl ? 'direction:rtl' : ''">
-    <div ref="pv_caro" class="pv_caro" :class="{ pv_caro_vertical: vertical }" :style="preventTouchScorll ? 'overflow:hidden' : ''">
+  <div :id="containerId" draggable="false" :style="rtl ? 'direction:rtl' : ''">
+    <div ref="pv_caro" draggable="false" class="pv_caro" :class="{ pv_caro_vertical: vertical }" :style="preventTouchScorll ? 'overflow:hidden' : ''">
       <div
         ref="pv_container"
+        draggable="false"
         class="pv_container"
         :style="{ transform: transform_data, gap: gap + 'px', transition: `transform ${transition_speed}s ${transition_timming_function}` }"
         :class="{ pv_grab: grab, pv_container_vertical: vertical }"
@@ -22,8 +23,9 @@
 
 export default {
   name: 'PvCarrousel',
-  data() {
+  data () {
     return {
+      pv_card: undefined,
       width_of_viewport_container: null,
       width_of_card: null,
       transformation_value: 0,
@@ -47,7 +49,15 @@ export default {
       touchendX: null,
       touchendY: null,
       swipeThershold: 50,
-      movement_list: []
+      movement_list: [],
+      grab_control: {
+        init_move: 0,
+        move: 0,
+        move_store: 0,
+        snap: true
+      },
+      autoPlay_id: null,
+      debouncer_id: null
     }
   },
   props: {
@@ -104,7 +114,7 @@ export default {
       default: 0
     }
   },
-  mounted() {
+  mounted () {
     this.transformation_value = this.offset
     this.initialSetup()
     this.transformation_value += (this.width_of_card + this.gap) * (this.startFrom - 1)
@@ -112,41 +122,33 @@ export default {
     this.addTouchEventListener()
     this.addDragEventListner()
     if (this.autoPlay) {
-      setInterval(this.moveNxt, this.autoPlay)
+      this.autoPlayProcess()
     }
   },
   computed: {
-    containerId() {
-      return (
-        'pv_' +
-        Math.random()
-          .toString(36)
-          .substring(2, 5) +
-        Math.random()
-          .toString(36)
-          .substring(2, 5)
-      )
+    containerId () {
+      return 'pv_' + Math.random().toString(36).substring(2, 5) + Math.random().toString(36).substring(2, 5)
     },
-    number_of_cards_in_chunk() {
+    number_of_cards_in_chunk () {
       // how many cards can be seen in a viewport
       const initial_value = this.width_of_viewport_container / (this.width_of_card + this.gap)
       const total_width_of_cards = this.width_of_viewport_container - Math.floor(initial_value) * this.gap
       return total_width_of_cards / this.width_of_card
     },
-    number_of_chunks() {
+    number_of_chunks () {
       // think of it as dots in carousel
       return this.width_of_cards_container / (this.number_of_cards_in_chunk * this.width_of_card + (this.number_of_cards_in_chunk - 1) * this.gap)
     },
-    extra_width() {
+    extra_width () {
       const extra = (1 - (this.number_of_cards_in_chunk % 1)) * this.width_of_card
       return extra === this.width_of_card ? extra + this.gap : extra
 
       // return ((this.width_of_cards_container/this.width_of_viewport_container) % 1) * this.width_of_viewport_container
     },
-    lastIndex() {
+    lastIndex () {
       return this.number_of_all_cards - Math.floor(this.number_of_cards_in_chunk)
     },
-    activeDot() {
+    activeDot () {
       let activeDot
       for (let i = 0; i <= this.pages; i++) {
         if (this.initIndex >= i * this.number_of_cards_in_chunk) {
@@ -160,40 +162,58 @@ export default {
     }
   },
   methods: {
-    initialSetup() {
+    initialSetup () {
       if (process.browser) {
-        this.width_of_card = document.querySelector(`#${this.containerId} .pv_card`).offsetWidth // changed from clientWidth to offsetWidth to include boarders
-        this.cards_container = this.$refs.pv_container
-        this.width_of_cards_container = this.cards_container.clientWidth
-        this.width_of_viewport_container = this.$refs.pv_caro.clientWidth
-        this.all_cards = document.querySelectorAll(`#${this.containerId} .pv_card`)
-        this.number_of_all_cards = this.all_cards.length
-        // this.pages = Math.round(this.number_of_chunks)
-        this.pages = Math.ceil(this.number_of_chunks)
-        if (this.loop) {
-          this.all_cards.forEach(card => {
-            this.cards_container.appendChild(card.cloneNode(true))
-          })
-        }
-        if (this.highLightItem && this.loop) {
-          this.allDuplicatedCards = document.querySelectorAll(`#${this.containerId} .pv_card`)
-          this.allDuplicatedCards[this.highLightItem - 1 + (this.initIndex - 1)].classList.add(this.hitglightClass)
-        }
-        if (this.loop) {
-          for (let i = 1; i <= this.number_of_all_cards - 1; i++) {
-            this.movement_list[0] = 0
-            this.movement_list[i] = this.gap + this.width_of_card + this.movement_list[i - 1]
+        this.pv_card = document.querySelector(`#${this.containerId} .pv_card`)
+        if (this.pv_card) {
+          this.width_of_card = this.pv_card.offsetWidth // changed from clientWidth to offsetWidth to include boarders
+          this.cards_container = this.$refs.pv_container
+          this.width_of_cards_container = this.cards_container.clientWidth
+          this.width_of_viewport_container = this.$refs.pv_caro.clientWidth
+          this.all_cards = document.querySelectorAll(`#${this.containerId} .pv_card`)
+          this.number_of_all_cards = this.all_cards.length
+          // this.pages = Math.round(this.number_of_chunks)
+          this.pages = Math.ceil(this.number_of_chunks)
+          if (this.loop) {
+            this.all_cards.forEach((card) => {
+              this.cards_container.appendChild(card.cloneNode(true))
+            })
           }
-        } else {
-          for (let i = 1; i <= this.lastIndex - 1; i++) {
-            this.movement_list[0] = 0
-            this.movement_list[i] = this.gap + this.width_of_card + this.movement_list[i - 1]
+          if (this.highLightItem && this.loop) {
+            this.allDuplicatedCards = document.querySelectorAll(`#${this.containerId} .pv_card`)
+            this.allDuplicatedCards[this.highLightItem - 1 + (this.initIndex - 1)].classList.add(this.hitglightClass)
           }
-          this.movement_list[this.lastIndex] = this.movement_list[this.lastIndex - 1] + this.extra_width
+          if (this.loop) {
+            for (let i = 1; i <= this.number_of_all_cards - 1; i++) {
+              this.movement_list[0] = 0
+              this.movement_list[i] = this.gap + this.width_of_card + this.movement_list[i - 1]
+            }
+          } else {
+            for (let i = 1; i <= this.lastIndex - 1; i++) {
+              this.movement_list[0] = 0
+              this.movement_list[i] = this.gap + this.width_of_card + this.movement_list[i - 1]
+            }
+            this.movement_list[this.lastIndex] = this.movement_list[this.lastIndex - 1] + this.extra_width
+          }
         }
       }
     },
-    directingTheMovment() {
+    autoPlayInit () {
+      this.autoPlay_id = setInterval(() => {
+        this.moveNxt('autoPlay')
+      }, this.autoPlay * 1000)
+    },
+    autoPlayProcess () {
+      this.autoPlayInit()
+      this.cards_container.addEventListener('mouseenter', () => {
+        clearInterval(this.autoPlay_id)
+        this.autoPlay_id = null
+      })
+      this.cards_container.addEventListener('mouseleave', () => {
+        this.autoPlayInit()
+      })
+    },
+    directingTheMovment () {
       let actionDirection
       // setting the action of the movement (eg. next, prev)
       if (this.transformation_value < this.offset) {
@@ -210,7 +230,17 @@ export default {
         this.transform_data = `translateX(${actionDirection}px)`
       }
     },
-    moveNxt() {
+
+    moveNxt (orgin = '') {
+      if (this.autoPlay && orgin !== 'autoPlay') {
+        clearInterval(this.autoPlay_id)
+        clearTimeout(this.debouncer_id)
+        this.debouncer_id = setTimeout(() => {
+          clearInterval(this.autoPlay_id)
+          this.autoPlay_id = null
+          this.autoPlayInit()
+        }, 2000)
+      }
       if (this.chunk) {
         this.dotFunc(this.activeDot === this.pages ? (this.rewind ? 1 : this.pages) : ++this.activeDot)
         return
@@ -247,7 +277,16 @@ export default {
       this.transformation_value += this.width_of_card + this.gap
       this.directingTheMovment()
     },
-    movePrv() {
+
+    movePrv (orgin = '') {
+      if (this.autoPlay && orgin !== 'autoPlay') {
+        clearInterval(this.autoPlay_id)
+        clearTimeout(this.debouncer_id)
+        this.debouncer_id = setTimeout(() => {
+          this.autoPlayInit()
+        }, 2000)
+        console.log('deb')
+      }
       if (this.chunk) {
         this.dotFunc(this.activeDot === 1 ? (this.rewind ? this.pages : 1) : --this.activeDot)
         return
@@ -280,7 +319,7 @@ export default {
       this.transformation_value -= this.width_of_card + this.gap
       this.directingTheMovment()
     },
-    dotFunc(num) {
+    dotFunc (num) {
       this.activeDot = num
       if (num === this.pages) {
         this.initIndex = this.lastIndex + 1
@@ -292,7 +331,7 @@ export default {
       this.transformation_value = (this.width_of_card + this.gap) * (this.initIndex - 1)
       this.directingTheMovment()
     },
-    calcSwipeDirection() {
+    calcSwipeDirection () {
       if (this.touchendX < this.touchstartX && Math.abs(this.touchstartX - this.touchendX) >= this.swipeThershold) {
         console.log('Left')
         // adding functionality for swipe left
@@ -324,12 +363,17 @@ export default {
         console.log('Tap')
       }
     },
-    returnNearstNumber(num, arr, limiter) {
-      if (limiter == undefined) {
+    calcMoveX (event) {
+      this.grab_control.move = event.pageX - this.grab_control.init_move + this.grab_control.move_store
+      console.log(this.grab_control.move)
+      this.transformation_value = this.grab_control.move
+    },
+    returnNearstNumber (num, arr, limiter) {
+      if (limiter === undefined) {
         limiter = (arr[1] - arr[0]) / 2
       }
       let closest = arr[0]
-      for (let i of arr) {
+      for (const i of arr) {
         if (num + limiter < i) {
           break
         }
@@ -337,13 +381,13 @@ export default {
       }
       return closest
     },
-    addTouchEventListener() {
+    addTouchEventListener () {
       if (!this.grab) {
         return
       }
       this.cards_container.addEventListener(
         'touchstart',
-        event => {
+        (event) => {
           this.touchstartX = event.changedTouches[0].screenX
           this.touchstartY = event.changedTouches[0].screenY
         },
@@ -352,7 +396,7 @@ export default {
 
       this.cards_container.addEventListener(
         'touchend',
-        event => {
+        (event) => {
           this.touchendX = event.changedTouches[0].screenX
           this.touchendY = event.changedTouches[0].screenY
           // console.log(this.touchendX, this.touchstartX, this.swipeThershold, this.touchendY, this.touchstartY)
@@ -361,21 +405,36 @@ export default {
         false
       )
     },
-    addDragEventListner() {
+    addDragEventListner () {
       if (!this.grab) {
         return
       }
-      this.cards_container.addEventListener('mousedown', event => {
+      this.cards_container.addEventListener('mousedown', (event) => {
         this.cards_container.style.cursor = 'grabbing'
+        this.grab_control.init_move = event.pageX
+        document.addEventListener('mousemove', this.calcMoveX)
+        this.directingTheMovment()
       })
 
-      this.cards_container.addEventListener('mouseup', event => {
+      this.cards_container.addEventListener('mouseup', (event) => {
         this.cards_container.style.cursor = 'grab'
+        document.removeEventListener('mousemove', this.calcMoveX)
+        if (this.grab_control.snap) {
+          this.transformation_value = this.returnNearstNumber(this.transformation_value, this.movement_list)
+        }
+        this.grab_control.move_store = this.transformation_value
+        this.directingTheMovment()
       })
-      this.cards_container.addEventListener('touchend', event => {})
+      this.cards_container.addEventListener('touchend', (event) => {})
 
-      this.cards_container.addEventListener('mouseleave', event => {
+      this.cards_container.addEventListener('mouseleave', (event) => {
         this.cards_container.style.cursor = 'grab'
+        // document.removeEventListener('mousemove', this.calcMoveX)
+        // if (this.grab_control.snap) {
+        //   this.transformation_value = this.returnNearstNumber(this.transformation_value, this.movement_list)
+        // }
+        // this.grab_control.move_store = this.transformation_value
+        // this.directingTheMovment()
       })
 
       // this.cards_container.addEventListener('dragstart', event => {
@@ -406,15 +465,15 @@ export default {
     }
   },
   watch: {
-    mouseMove(newval, oldval) {
+    mouseMove (newval, oldval) {
       if (newval < 0) {
         console.log('moue moved!')
       }
     },
-    number_of_chunks(to, from) {
+    number_of_chunks (to, from) {
       this.pages = Math.ceil(to)
     },
-    initIndex(to, from) {
+    initIndex (to, from) {
       if (from !== 1 && to === this.number_of_all_cards + 1) {
         setTimeout(() => {
           this.transition_speed = 0
@@ -456,6 +515,9 @@ export default {
 }
 .pv_caro::-webkit-scrollbar {
   display: none;
+}
+.pv_card {
+  user-select: none !important;
 }
 .pv_grab {
   cursor: grab;
