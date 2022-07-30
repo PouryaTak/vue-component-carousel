@@ -39,7 +39,6 @@ export default {
       arr: [],
       mouseMove: 0,
       pages: null,
-      // activeDot: 1,
       allDuplicatedCards: null,
       transition_speed: 0.3,
       transition_timming_function: 'ease',
@@ -365,8 +364,9 @@ export default {
     },
     calcMoveX (event) {
       this.grab_control.move = event.pageX - this.grab_control.init_move + this.grab_control.move_store
-      console.log(this.grab_control.move)
-      this.transformation_value = this.grab_control.move
+      console.log(JSON.stringify(this.grab_control))
+      this.transformation_value = this.grab_control.move * -1
+      this.transform_data = `translateX(${this.transformation_value * -1}px)`
     },
     returnNearstNumber (num, arr, limiter) {
       if (limiter === undefined) {
@@ -413,28 +413,28 @@ export default {
         this.cards_container.style.cursor = 'grabbing'
         this.grab_control.init_move = event.pageX
         document.addEventListener('mousemove', this.calcMoveX)
-        this.directingTheMovment()
       })
 
       this.cards_container.addEventListener('mouseup', (event) => {
         this.cards_container.style.cursor = 'grab'
         document.removeEventListener('mousemove', this.calcMoveX)
         if (this.grab_control.snap) {
-          this.transformation_value = this.returnNearstNumber(this.transformation_value, this.movement_list)
+          this.transformation_value = this.returnNearstNumber(Math.abs(this.transformation_value), this.movement_list)
         }
-        this.grab_control.move_store = this.transformation_value
-        this.directingTheMovment()
+        this.grab_control.move_store = this.transformation_value * -1
+        this.transform_data = `translateX(${this.transformation_value * -1}px)`
       })
       this.cards_container.addEventListener('touchend', (event) => {})
 
       this.cards_container.addEventListener('mouseleave', (event) => {
         this.cards_container.style.cursor = 'grab'
-        // document.removeEventListener('mousemove', this.calcMoveX)
-        // if (this.grab_control.snap) {
-        //   this.transformation_value = this.returnNearstNumber(this.transformation_value, this.movement_list)
-        // }
-        // this.grab_control.move_store = this.transformation_value
+        document.removeEventListener('mousemove', this.calcMoveX)
+        if (this.grab_control.snap) {
+          this.transformation_value = this.returnNearstNumber(this.transformation_value, this.movement_list)
+        }
+        this.grab_control.move_store = this.transformation_value
         // this.directingTheMovment()
+        this.transform_data = `translateX(${this.transformation_value * -1}px)`
       })
 
       // this.cards_container.addEventListener('dragstart', event => {

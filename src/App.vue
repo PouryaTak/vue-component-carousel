@@ -69,7 +69,7 @@ export default {
     }
   },
   watch: {
-    loop (to, from) {
+    loop (val) {
       this.refreshComponent()
     }
   },
